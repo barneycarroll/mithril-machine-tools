@@ -1,4 +1,4 @@
-var Promise = {
+var Promiser = {
   view: function(){
     return v.children[0].children(Object.assign({}, this))
   },
