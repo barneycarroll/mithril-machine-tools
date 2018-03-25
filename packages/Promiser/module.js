@@ -22,8 +22,8 @@ export default {
   
   onbeforeupdate(now, then){
     if(now.attrs.promise !== then.attrs.promise){
-      for(const key in object)
-        delete object[key]
+      for(const key in this)
+        delete this[key]
         
       this.oninit.apply(this, arguments)
     }
