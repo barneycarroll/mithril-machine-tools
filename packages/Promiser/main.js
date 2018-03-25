@@ -30,7 +30,7 @@ var Promiser = {
       for(const key in this)
         delete this[key]
         
-      Promise.oninit.apply(this, now)
+      Promiser.oninit.apply(this, now)
     }
   },
 }
