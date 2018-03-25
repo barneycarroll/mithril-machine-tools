@@ -1,5 +1,5 @@
 var Promiser = {
-  view: function(){
+  view: function(v){
     return v.children[0].children(Object.assign({}, this))
   },
   
