@@ -80,7 +80,7 @@ const findRoot = dom => {
 
 const locate = (root, target) => {
   for(const collection of crawl(root.vnodes))
-    if(collection.findIndex){
+    if(Array.isArray(collection)){
       const index = collection.findIndex(subject => subject === target) 
       
       if(index >= 0)
