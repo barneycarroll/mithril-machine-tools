@@ -1,4 +1,4 @@
-const Island = {
+export default {
   view: v =>
     // Feed a function to the children:
     v.children[0].children(function handler(x){
