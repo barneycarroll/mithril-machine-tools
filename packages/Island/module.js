@@ -98,8 +98,3 @@ function * crawl(node){
   for(const child of node)
     yield * crawl(child)
 }
-
-try {
-  module.exports = Island
-}
-catch(e){}
