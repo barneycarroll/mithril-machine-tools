@@ -80,7 +80,10 @@ const findRoot = dom => {
 
 const locate = (root, target) => {
   for(const collection of crawl(root.vnodes))
-    if(Array.isArray(collection)){
+    if(collection === target)
+      return Object.assign(target.state, {collection: [collection], index: 0})
+      
+    else if(Array.isArray(collection)){
       const index = collection.findIndex(subject => subject === target) 
       
       if(index >= 0)
@@ -95,6 +98,7 @@ function * crawl(node){
     if(node[subtree])
       return yield * crawl(node[subtree])
   
-  for(const child of node)
-    yield * crawl(child)
+  if(Array.isArray(node))
+    for(const child of node)
+      yield * crawl(child)
 }
