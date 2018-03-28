@@ -1,0 +1,21 @@
+var ClickOff = {
+  view : function(v){
+    return v.children
+  },
+
+  oncreate : function(v){
+    addEventListener('click', v.state.handler = function(e){
+      if(!v.dom.contains(e.target))
+        return v.attrs.callback(e)
+    }, true)
+  },
+
+  onremove : function(v){
+    removeEventListener('click', v.state.handler, true)
+  }
+}
+
+try {
+  module.exports = ClickOff
+}
+catch(e){}
