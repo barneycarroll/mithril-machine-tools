@@ -81,7 +81,10 @@ function locate(root, target){
   var crawl = crawler(root.vnodes)
   var collection
   
-  while(collection = crawl())
+  while(collection = crawl()){
+    if(collection === target)
+      collection = [collection]
+    
     if(collection.length)
       for(var i = 0; i < collection.length; i++)
         if(collection[i] === target){
@@ -90,6 +93,7 @@ function locate(root, target){
 
           return
         }
+  }
 }
 
 function crawler(root){
@@ -104,7 +108,7 @@ function crawler(root){
     else if(node.children)
       backlog.push(node.children)
     
-    else if(node.length)
+    else if(node.length && typeof node === 'object')
       backlog.push.apply(backlog, node)
    
     return node
