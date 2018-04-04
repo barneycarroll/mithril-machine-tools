@@ -1,8 +1,22 @@
 export default function(v){
+  const f = (
+      v.children[0] 
+    &&
+      typeof v.children[0].children === 'function'
+    &&
+      v.children[0].children
+  )
+
   return (
-      v.children[0] && typeof v.children[0].children === 'function'
+      f
     ?
-      v.children[0].children(...arguments)
+      (
+          f.prototype && f.prototype.view
+        ?
+          new f(...arguments)
+        :
+          f(...arguments)
+      )
     :
       {
         view(v){
