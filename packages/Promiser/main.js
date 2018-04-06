@@ -23,6 +23,7 @@ var Promiser = {
 
         m.redraw()
       }
+    )
   },
   
   onbeforeupdate: function(now, then){
