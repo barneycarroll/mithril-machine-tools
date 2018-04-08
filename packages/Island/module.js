@@ -2,7 +2,7 @@ export default {
   view: v =>
     // Feed a function to the children:
     v.children[0].children(function handler(x){
-      if(x.target === this)
+      if(x && x.target === this)
         return handler(Function.prototype).apply(this, arguments)
       
       else if(typeof x !== 'function')
