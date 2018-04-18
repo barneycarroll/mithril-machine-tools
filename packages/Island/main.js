@@ -1,116 +1,126 @@
-var Island = {
-  view: function(v){
-    // Feed a function to the children:
-    return v.children[0].children(function handler(x){
-      if(x && x.target === this)
-        return handler(Function.prototype).apply(this, arguments)
-      
-      else if(typeof x !== 'function')
-        v.state.redraw()
-      
-      else 
-        return function(e){
-          const output = x.apply(this, arguments)
+function Island(v){
+  // Internal
+  var root   // Nearest ancestral mount-point
+  var vnodes // Root vnodes as of last check, used to determine whether
+  var place  // v's vnode sequence & position within context
 
-          if(e.redraw !== false)
-            v.state.redraw()
+  // Flag passed to view to indicate current draw loop is local
+  var local = false
 
-          e.redraw = false
+  return {
+    view: function(){
+      return v.children[0].children({
+        local  : local,
+        redraw : redraw
+      })
+    },
 
-          return output
-        }
+    oncreate: tick,
+    onupdate: tick
+  }
+
+  // Update internal reference, clear local flag
+  function tick(x){
+    v = x
+
+    Promise.resolve().then(function(){
+      local = false
     })
-  },
-  
-  // Noop until we've rendered once, when we can query the DOM
-  redraw: function(){},
-  
-  // Persist the latest vnode to state
-  onupdate: function(v){
-    v.state.v = v
-  },
-  
-  oncreate: function(v){
-    // Locate the global root (to query the computed tree)
-    var root = findRoot(v.dom)
-    
-    v.state.v = v
-    
-    // Use this to infer whether supertree has changed
-    v.state.vnodes = root.vnodes
-    
-    v.state.redraw = function(){
-      // If a global redraw took place since last local draw,
-      // we might need to relocate the island's global position
-      if(!v.state.collection || v.state.vnodes[0] !== root.vnodes[0]){
-        locate(root, v.state.v)
-        
-        v.state.vnodes = root.vnodes
+  }
+
+  // Overload redraw function
+  function redraw(handler){
+    // Manual, explicit redraw
+    if(typeof x !== 'function')
+      render()
+
+    // Event handler wrapper: inverts Mithril auto-redraw directives:
+    else
+      return function(e){
+        const output = handler.apply(this, arguments)
+
+        // Unless e.redraw was set to false, redraw
+        if(e.redraw !== false)
+          render()
+
+        // Prevent global redraw
+        e.redraw = false
+
+        return output
       }
-      
-      // Execute 
-      var replacement = m(v.tag, v.state.v.attrs, v.state.v.children)
-      
-      // Set a local vnodes modulo to allow Mithril to skip siblings
-      // and diff from last global draw
-      v.dom.parentNode.vnodes = v.state.collection
-      
-      // Render the patched local context + our new local draw
-      m.render(
-        v.dom.parentNode, 
-        v.state.collection.slice(0, v.state.index)
-          .concat(replacement)
-          .concat(v.state.collection.slice(v.state.index + 1))
-      )
-      
-      // Persist the vnode patch to Mithril's global vtree cache 
-      // (for global draw diffing)
-      v.state.collection[v.state.index] = replacement
+  }
+
+  function render(){
+    if(!v.dom)
+      return
+
+    if(!root)
+      root = findRoot(v.dom)
+
+    local = true
+
+    // If a global redraw took place since last local draw,
+    // we might need to relocate the island's global position
+    if(vnodes !== root.vnodes){
+      vnodes = root.vnodes
+      place  = locate(root)
     }
-  },
-}
 
-function findRoot(dom){
-  while(!dom.vnodes)
-    dom = dom.parentNode
-  
-  return dom
-}
+    var replacement = m(v.tag, v.attrs, v.children)
 
-function locate(root, target){
-  var crawl = crawler(root.vnodes)
-  var collection
-  
-  while(collection = crawl()){
-    if(collection === target)
-      collection = [collection]
-    
-    if(collection.length)
-      for(var i = 0; i < collection.length; i++)
-        if(collection[i] === target){
-          target.state.collection = collection
-          target.state.index      = i
+    // Set a local vnodes modulo to allow Mithril to skip siblings
+    // and diff from last global draw
+    v.dom.parentNode.vnodes = place.context
 
-          return
-        }
+    // Render the patched local context + our new local draw
+    m.render(
+      v.dom.parentNode,
+      []
+        .concat(place.context.slice(0, place.position))
+        .concat(replacement)
+        .concat(place.context.slice(place.position + 1))
+    )
+
+    // Persist the vnode patch to Mithril's global vtree cache
+    // (for global draw diffing)
+    place.context[place.position] = replacement
+  }
+
+  function locate(root){
+    var crawl = crawler(root.vnodes)
+    var node
+
+    while(node = crawl()){
+      if(node === v)
+        node = [node]
+
+      if(node.length)
+        for(var i = 0; i < node.length; i++)
+          if(node[i] === v)
+            return {
+              context  : node,
+              position : i
+            }
+          }
+    }
   }
 }
 
 function crawler(root){
   var backlog = [root]
-  
+
   return function(){
     var node = backlog.pop()
-    
+
     if(node.instance)
       backlog.push(node.instance)
-    
+
     else if(node.children)
       backlog.push(node.children)
-    
+
     else if(node.length && typeof node === 'object')
       backlog.push.apply(backlog, node)
-   
+
     return node
   }
 }
