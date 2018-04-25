@@ -1,0 +1,32 @@
+{
+  "name": "cascading-components",
+  "version": "0.0.1",
+  "description": "Low-level utility components for Mithril",
+  "main": "index.js",
+  "dependencies": {
+    "mithril": "^1.1.6"
+  },
+  "peerDependencies": {
+    "mithril": "^1.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/barneycarroll/cascading-components.git"
+  },
+  "keywords": [
+    "mithril",
+    "fp",
+    "utility",
+    "components"
+  ],
+  "author": "Barney Carroll <barney.carroll@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/barneycarroll/cascading-components/issues"
+  },
+  "homepage": "https://github.com/barneycarroll/cascading-components#readme"
+}
