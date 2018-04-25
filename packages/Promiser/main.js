@@ -4,22 +4,34 @@ var Promiser = {
   },
   
   oninit: function(v){
-    this.pending = true
+    Object.assign(v.state, {
+      value:    void 0,
+      error:    void 0,
+      resolved: void 0,
+      rejected: void 0,
+      pending:  true,
+      settled:  false,
+      
+    })
     
     v.attrs.promise.then(
       function(value){
-        this.value = value
-        this.resolved = true
-        this.pending = false
+        v.state.value    = value
+        v.state.resolved = true
+        v.state.rejected = false
+        v.state.pending  = false
+        v.state.settled  = true
 
         m.redraw()
       },
 
 
       function(error){
-        this.error = error
-        this.rejected = true
-        this.pending = false
+        v.state.error    = error
+        v.state.resolved = false
+        v.state.rejected = true
+        v.state.pending  = false
+        v.state.settled  = true
 
         m.redraw()
       }
