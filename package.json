@@ -1,16 +1,22 @@
 {
   "name": "cascading-components",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Low-level utility components for Mithril",
   "main": "index.js",
   "dependencies": {
-    "mithril": "^1.1.6"
+    "patchinko": "^3.0.0"
   },
   "peerDependencies": {
     "mithril": "^1.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "mithril": "^1.1.6",
+    "symlink-dir": "^1.1.2",
+    "zwitterion": "^0.27.0"
+  },
   "scripts": {
+    "install": "symlink-dir src node_modules/src",
+    "start": "zwitterion -w --target ESNext",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

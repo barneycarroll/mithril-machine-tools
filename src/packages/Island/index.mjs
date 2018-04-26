@@ -1,9 +1,12 @@
+import findRoot       from 'src/utils/findRoot.mjs'
+import findWithinRoot from 'src/utils/findWithinRoot.mjs'
+
 export default v => {
   // Internal
-  let root     // Nearest ancestral mount-point
-  let vnodes   // Root vnodes as of last check, used to determine whether
-  let context  // v's vnode sequence
-  let position // v's position within context
+  let root   // Nearest ancestral mount-point
+  let rootVs // Root vnodes as of last check
+  let host   // v's vnode sequence
+  let path   // v's position within container
 
   // Flag passed to view to indicate current draw loop is local
   let local = false
@@ -58,26 +61,31 @@ export default v => {
 
     // If a global redraw took place since last local draw,
     // we might need to relocate the island's global position
-    if(vnodes !== root.vnodes){
-      vnodes               = root.vnodes;
-      ({context, position} = locate(root))
+    if(rootVs !== root.vnodes){
+      rootVs        = root.vnodes;
+      ({host, path} = findWithinRoot(v, root))
     }
 
-    const replacement = m(v.tag, v.attrs, v.children)
+    const vnodes = Array.isArray(host) ? host : [host]
+    const patch  = path.reverse().slice(1).reduce(
+      (patch, key, index) => ({
+        [key] : O(patch)
+      }),
+      {
+        [path.slice(1)] : m(v.tag, v.attrs, v.children)
+      },
+    )
+    const replacement = O(vnodes, patch)
 
     // Set a local vnodes modulo to allow Mithril to skip siblings
     // and diff from last global draw
-    v.dom.parentNode.vnodes = context
+    v.dom.parentNode.vnodes = vnodes
 
-    // Render the patched local context + our new local draw
-    m.render(v.dom.parentNode, [
-      ...context.slice(0, position),
-      replacement,
-      ...context.slice(position + 1)
-    ])
+    // Render the patched local container + our new local draw
+    m.render(v.dom.parentNode, replacement)
 
     // Persist the vnode patch to Mithril's global vtree cache
     // (for global draw diffing)
-    context[position] = replacement
+    host[path[0]] = replacement[path[0]]
   }
 }
