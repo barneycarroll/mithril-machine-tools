@@ -25,8 +25,12 @@ export default v => ({
   onremove : teardown,
 
   handleEvent: e => {
-    if(e.type in v.attrs && !v.dom.contains(e.target))
+    if(e.type in v.attrs && !v.dom.contains(e.target)){
       v.attrs[e.type](e)
+
+      if(e.redraw !== false)
+        m.redraw()
+    }
   },
 
   onbeforeupdate: latest => {
