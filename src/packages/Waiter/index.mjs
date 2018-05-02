@@ -26,8 +26,6 @@ export default () => {
 }
 
 const callOBR = async v => {
-  debugger
-  
   await Promise.all([
        v.attrs
     && v.attrs.onbeforeremove
