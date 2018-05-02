@@ -2,8 +2,13 @@ export default () => {
   var link = new Map
 
   return {
-    view : v =>
-      v.children[0].children(link),
+    view : v => (
+        v.attrs.link
+      ? 
+        v.children
+      :
+        v.children[0].children(link) 
+    ),
 
     oncreate: persist,
     onupdate: persist,
@@ -20,8 +25,10 @@ export default () => {
   }
 }
 
-const callOBR = v =>
-  Promise.all([
+const callOBR = async v => {
+  debugger
+  
+  await Promise.all([
        v.attrs
     && v.attrs.onbeforeremove
     && v.attrs.onbeforeremove.call(v.state, v),
@@ -29,15 +36,18 @@ const callOBR = v =>
        v.state.onbeforeremove
     && v.state.onbeforeremove.call(v.state, v),
   ])
+  
+  m.redraw()
+}
 
-const findOBR v => {
+const findOBR = v => {
   while (v.length || !(v.tag.onbeforeremove || v.attrs && v.attrs.onbeforeremove))
     v = v.instance || v.children || v[0]
 
   return v
 }
 
-const persist v => {
+const persist = v => {
   const target = findOBR(v)
 
   if(v.attrs.link)
