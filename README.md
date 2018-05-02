@@ -6,6 +6,7 @@ Low-level utility component for Mithril, for tricksy virtual DOM adventures.
 
 [`Inline`, `Off`, `Promiser` & `Waiter` are demonstrated here](https://goo.gl/6Gjrrh).
 
+- [x] [Historian](https://github.com/barneycarroll/cascading-components/tree/master/src/packages/Historian)
 - [x] [Inline](https://github.com/barneycarroll/cascading-components/tree/master/src/packages/Inline)
 - [ ] Island
 - [ ] Mobile
