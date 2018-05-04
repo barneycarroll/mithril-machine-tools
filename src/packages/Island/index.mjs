@@ -1,6 +1,3 @@
-import findRoot       from 'src/utils/findRoot.mjs'
-import findWithinRoot from 'src/utils/findWithinRoot.mjs'
-
 export default v => {
   // Internal
   let root   // Nearest ancestral mount-point
@@ -51,7 +48,7 @@ export default v => {
   }
 
   function render(){
-    if(!v.dom)
+    if(!v.dom || !v.dom.parentNode)
       return
 
     if(!root)
@@ -62,17 +59,17 @@ export default v => {
     // If a global redraw took place since last local draw,
     // we might need to relocate the island's global position
     if(rootVs !== root.vnodes){
-      rootVs        = root.vnodes;
       ({host, path} = findWithinRoot(v, root))
+      rootVs        = root.vnodes
     }
 
     const vnodes = Array.isArray(host) ? host : [host]
     const patch  = path.reverse().slice(1).reduce(
-      (patch, key, index) => ({
+      (patch, key) => ({
         [key] : O(patch)
       }),
       {
-        [path.slice(1)] : m(v.tag, v.attrs, v.children)
+        [path[0]] : m(v.tag, v.attrs, v.children)
       },
     )
     const replacement = O(vnodes, patch)
@@ -87,5 +84,50 @@ export default v => {
     // Persist the vnode patch to Mithril's global vtree cache
     // (for global draw diffing)
     host[path[0]] = replacement[path[0]]
+  }
+}
+
+const findRoot = element => {
+  while(!element.vnodes)
+    element = element.parentNode
+
+  return element
+}
+
+const findWithinRoot = (target, root) => {
+  const path = []
+  let host
+
+  for(const {node, key, container} of crawl({node: root.vnodes})){
+    if(node.dom === target.dom){
+      path.push(key)
+
+      if(!host)
+        host = container
+    }
+
+    if(node === target)
+      return {path, host}
+  }
+}
+
+function * crawl({key, node, container}){
+  yield {key, node, container}
+
+  if(Array.isArray(node))
+    for(var key = 0; key < node.length; key++)
+      yield * recurse()
+
+  else
+    for(var key of ['instance', 'children'])
+      if(node[key])
+        return yield * recurse()
+
+  function recurse(){
+    return crawl({
+      key,
+      node: node[key],
+      container: node,
+    })
   }
 }
