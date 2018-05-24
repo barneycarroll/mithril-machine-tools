@@ -185,6 +185,40 @@ import('../index.mjs').then(({default: Island}) => {
           )
       })
     })
+
+    o('`first` flag', (done, timeout) => {
+      timeout(80)
+
+      const tests = [
+        ({first, redraw}) => {
+          o(first).equals(true)
+            ('is `true` on first draw')
+
+          frames(1).then(redraw)
+        },
+
+        ({first}) => {
+          o(first).equals(false)
+            ('is `false` on local redraw')
+
+          frames(1).then(m.redraw)
+        },
+
+        ({first}) => {
+          o(first).equals(false)
+            ('is `false` on global redraws')
+
+          done()
+        },
+      ]
+
+      mount({
+        view: () =>
+          m(Island, API =>
+            tests.shift(API)
+          )
+      })
+    })
   })
 
   o.run()
