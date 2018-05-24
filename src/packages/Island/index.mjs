@@ -5,30 +5,33 @@ export default v => {
   let host   // v's vnode sequence
   let path   // v's position within container
 
-  // Flag passed to view to indicate current draw loop is local
+  // Flags to qualify nature of current draw loop
+  let first = true
   let local = false
 
   return {
-    view: () =>
-      v.children[0].children({local, redraw}),
-
     oncreate: tick,
     onupdate: tick,
+
+    view,
   }
 
-  // Update internal reference, clear local flag
-  function tick(x){
-    v = x
+  // Refresh & reset references
+  function tick(fresh){
+    v     = fresh
 
-    Promise.resolve().then(() => {
-      local = false
-    })
+    first = false
+    local = false
+  }
+
+  function view(){
+    return v.children[0].children({first, local, redraw})
   }
 
   // Overload redraw function
   function redraw(handler){
     // Manual, explicit redraw
-    if(typeof x !== 'function')
+    if(typeof handler !== 'function')
       render()
 
     // Event handler wrapper: inverts Mithril auto-redraw directives:
@@ -63,20 +66,26 @@ export default v => {
       rootVs        = root.vnodes
     }
 
-    const vnodes = Array.isArray(host) ? host : [host]
-    const patch  = path.reverse().slice(1).reduce(
-      (patch, key) => ({
-        [key] : O(patch)
-      }),
-      {
-        [path[0]] : m(v.tag, v.attrs, v.children)
-      },
+    // Trace the path from our (new) local instance up to the dom-rooted host vnode
+    // (this could be of any length, considering fragments & DOM-less components)
+    // and clone each node in the path for a replacement tree.
+    // This ensures a 'hot path', ensuring uncloned siblings aren't redrawn.
+    const replacement = O(
+      host,
+      [...path].reverse().reduce(
+          (patch, key) => ({
+            [key] : O(patch)
+          }),
+
+          O(v, {
+            instance: view()
+          }),
+        )
     )
-    const replacement = O(vnodes, patch)
 
     // Set a local vnodes modulo to allow Mithril to skip siblings
     // and diff from last global draw
-    v.dom.parentNode.vnodes = vnodes
+    v.dom.parentNode.vnodes = Array.isArray(host) ? host : [host]
 
     // Render the patched local container + our new local draw
     m.render(v.dom.parentNode, replacement)
