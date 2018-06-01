@@ -1,9 +1,10 @@
 export default v => {
   // Internal
   let root   // Nearest ancestral mount-point
-  let rootVs // Root vnodes as of last check
-  let host   // v's vnode sequence
   let path   // v's position within container
+  let vnodes // Root vnodes as of last check
+  let temp   // Variation of vnodes with components from root to target removed
+
 
   // Flags to qualify nature of current draw loop
   let first = true
@@ -52,47 +53,70 @@ export default v => {
 
   function render(){
     if(!v.dom || !v.dom.parentNode)
-      return
+      root = [...docment.all].find(node => node.vnodes)
 
     if(!root)
       root = findRoot(v.dom)
 
     local = true
 
-    // If a global redraw took place since last local draw,
-    // we might need to relocate the island's global position
-    if(rootVs !== root.vnodes){
-      ({host, path} = findWithinRoot(v, root))
-      rootVs        = root.vnodes
+    // Determine whether a global redraw took place after last local draw
+    if(vnodes !== root.vnodes){
+      // Refresh all dependent references
+      vnodes = root.vnodes
+      path   = findWithinRoot(v, root).reverse()
+      temp   = O(
+        vnodes,
+        path.reduce(
+          (patch, key) => (
+              key === 'instance'
+            ?
+              patch
+            :
+              { [key]: patch }
+          ),
+
+          v.instance,
+        ),
+      )
     }
 
-    // Trace the path from our (new) local instance up to the dom-rooted host vnode
-    // (this could be of any length, considering fragments & DOM-less components)
+    // Temporarily swap vnodes for a variation without components
+    // to avoid view re-executions
+    root.vnodes = temp
+
+    // Get our new component instance
+    const instance = view()
+
+    // Trace the path from our (new) local instance up to the root
     // and clone each node in the path for a replacement tree.
     // This ensures a 'hot path', ensuring uncloned siblings aren't redrawn.
-    const replacement = O(
-      host,
-      [...path].reverse().reduce(
-          (patch, key) => ({
-            [key] : O(patch)
-          }),
-
-          O(v, {
-            instance: view()
-          }),
-        )
-    )
-
-    // Set a local vnodes modulo to allow Mithril to skip siblings
-    // and diff from last global draw
-    v.dom.parentNode.vnodes = Array.isArray(host) ? host : [host]
-
     // Render the patched local container + our new local draw
-    m.render(v.dom.parentNode, replacement)
+    m.render(root, temp = O(
+      vnodes,
+      path().reduce(
+        (patch, key) => (
+            key === 'instance'
+          ?
+            patch
+          :
+            { [key]: O(patch) }
+        ),
 
-    // Persist the vnode patch to Mithril's global vtree cache
-    // (for global draw diffing)
-    host[path[0]] = replacement[path[0]]
+        instance,
+      ),
+    ))
+
+    vnodes = root.vnodes = O(
+      vnodes,
+      path().reduce(
+        (patch, key) => ({
+          [key]: O(patch)
+        }),
+
+        O(v, { instance }),
+      ),
+    )
   }
 }
 
@@ -104,39 +128,36 @@ const findRoot = element => {
 }
 
 const findWithinRoot = (target, root) => {
-  const path = []
-  let host
-
-  for(const {node, key, container} of crawl({node: root.vnodes})){
-    if(node.dom === target.dom){
-      path.push(key)
-
-      if(!host)
-        host = container
-    }
-
+  for(const {node, path} of crawl({node: root.vnodes}))
     if(node === target)
-      return {path, host}
-  }
+      return path
 }
 
-function * crawl({key, node, container}){
-  yield {key, node, container}
+function* crawl({ node, stack = [], path = [] }) {
+  yield { node, path }
 
-  if(Array.isArray(node))
-    for(var key = 0; key < node.length; key++)
-      yield * recurse()
+  if (Array.isArray(node)) {
+    let index = node.length
 
-  else
-    for(var key of ['instance', 'children'])
-      if(node[key])
-        return yield * recurse()
-
-  function recurse(){
-    return crawl({
-      key,
-      node: node[key],
-      container: node,
-    })
+    while (index--)
+      stack.push({
+        path: [...path, index],
+        node: node[index],
+      })
   }
+
+  else if (node.instance)
+    stack.push({
+      path: [...path, 'instance'],
+      node: node.instance,
+    })
+
+  else if (node.children)
+    stack.push({
+      path: [...path, 'children'],
+      node: node.children,
+    })
+
+  while (stack.length)
+    yield* crawl(stack.pop())
 }
