@@ -5,7 +5,6 @@ export default v => {
   let vnodes // Root vnodes as of last check
   let temp   // Variation of vnodes with components from root to target removed
 
-
   // Flags to qualify nature of current draw loop
   let first = true
   let local = false
@@ -65,20 +64,27 @@ export default v => {
       // Refresh all dependent references
       vnodes = root.vnodes
       path   = findWithinRoot(v, root).reverse()
+
+      window.reduce = []
+
       temp   = O(
         vnodes,
         path.reduce(
           (patch, key) => (
-              key === 'instance'
+            window.reduce.push(patch, key),
+
+              key == 'instance'
             ?
-              patch
+              { tag: '[', children: [patch] }
             :
-              { [key]: patch }
+              { [key]: O(patch) }
           ),
 
           v.instance,
         ),
       )
+
+      window.temp = temp
     }
 
     // Temporarily swap vnodes for a variation without components
@@ -94,7 +100,7 @@ export default v => {
     // Render the patched local container + our new local draw
     m.render(root, temp = O(
       vnodes,
-      path().reduce(
+      path.reduce(
         (patch, key) => (
             key === 'instance'
           ?
@@ -109,7 +115,7 @@ export default v => {
 
     vnodes = root.vnodes = O(
       vnodes,
-      path().reduce(
+      path.reduce(
         (patch, key) => ({
           [key]: O(patch)
         }),
@@ -136,28 +142,34 @@ const findWithinRoot = (target, root) => {
 function* crawl({ node, stack = [], path = [] }) {
   yield { node, path }
 
-  if (Array.isArray(node)) {
-    let index = node.length
-
-    while (index--)
-      stack.push({
+  if (Array.isArray(node))
+    stack.push(
+      ...node.map((node, index) => ({
+        node,
         path: [...path, index],
-        node: node[index],
-      })
-  }
+      }))
+    )
 
   else if (node.instance)
     stack.push({
-      path: [...path, 'instance'],
       node: node.instance,
+      path: [...path, 'instance'],
     })
 
   else if (node.children)
     stack.push({
-      path: [...path, 'children'],
       node: node.children,
+      path: [...path, 'children'],
     })
 
   while (stack.length)
     yield* crawl(stack.pop())
 }
+
+const decompose = (patch, key, index, { length }) => (
+    key == 'instance'
+  ?
+    { tag: '[', children: [patch], instance: O }
+  :
+    { [key]: O(patch) }
+)
