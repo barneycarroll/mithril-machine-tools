@@ -5,6 +5,7 @@ export default v => {
   let vnodes // Root vnodes as of last check
   let temp   // Variation of vnodes with components from root to target removed
 
+
   // Flags to qualify nature of current draw loop
   let first = true
   let local = false
@@ -17,30 +18,30 @@ export default v => {
   }
 
   // Refresh & reset references
-  function tick(fresh){
+  function tick(fresh) {
     v     = fresh
 
     first = false
     local = false
   }
 
-  function view(){
-    return v.children[0].children({first, local, redraw})
+  function view() {
+    return v.children[0].children({ first, local, redraw })
   }
 
   // Overload redraw function
-  function redraw(handler){
+  function redraw(handler) {
     // Manual, explicit redraw
-    if(typeof handler !== 'function')
+    if (typeof handler !== 'function')
       render()
 
     // Event handler wrapper: inverts Mithril auto-redraw directives:
     else
-      return function(e){
+      return function (e) {
         const output = handler(...arguments)
 
         // Unless e.redraw was set to false, redraw
-        if(e.redraw !== false)
+        if (e.redraw !== false)
           render()
 
         // Prevent global redraw
@@ -50,41 +51,37 @@ export default v => {
       }
   }
 
-  function render(){
-    if(!v.dom || !v.dom.parentNode)
-      root = [...docment.all].find(node => node.vnodes)
+  function render() {
+    if (!v.dom || !v.dom.parentNode){
+      root = [...document.all]
+        .filter(node =>
+          node.vnodes
+        )
+        .find(root =>
+          findWithinRoot(v, root)
+        )
 
-    if(!root)
+      if(!root)
+        return
+    }
+
+    else if (!root)
       root = findRoot(v.dom)
 
     local = true
 
     // Determine whether a global redraw took place after last local draw
-    if(vnodes !== root.vnodes){
+    if (vnodes !== root.vnodes) {
       // Refresh all dependent references
       vnodes = root.vnodes
-      path   = findWithinRoot(v, root).reverse()
-
-      window.reduce = []
-
-      temp   = O(
+      path = findWithinRoot(v, root).reverse()
+      temp = O(
         vnodes,
         path.reduce(
-          (patch, key) => (
-            window.reduce.push(patch, key),
-
-              key == 'instance'
-            ?
-              { tag: '[', children: [patch] }
-            :
-              { [key]: O(patch) }
-          ),
-
+          decompose,
           v.instance,
         ),
       )
-
-      window.temp = temp
     }
 
     // Temporarily swap vnodes for a variation without components
@@ -101,14 +98,7 @@ export default v => {
     m.render(root, temp = O(
       vnodes,
       path.reduce(
-        (patch, key) => (
-            key === 'instance'
-          ?
-            patch
-          :
-            { [key]: O(patch) }
-        ),
-
+        decompose,
         instance,
       ),
     ))
@@ -127,49 +117,55 @@ export default v => {
 }
 
 const findRoot = element => {
-  while(!element.vnodes)
+  while (!element.vnodes)
     element = element.parentNode
 
   return element
 }
 
 const findWithinRoot = (target, root) => {
-  for(const {node, path} of crawl({node: root.vnodes}))
-    if(node === target)
+  for (const { node, path } of crawl({ node: root.vnodes }))
+    if (node === target)
       return path
 }
 
 function* crawl({ node, stack = [], path = [] }) {
   yield { node, path }
 
-  if (Array.isArray(node))
-    stack.push(
-      ...node.map((node, index) => ({
-        node,
+  if (Array.isArray(node)) {
+    let index = node.length
+
+    while (index--)
+      stack.push({
         path: [...path, index],
-      }))
-    )
+        node: node[index],
+      })
+  }
 
   else if (node.instance)
     stack.push({
-      node: node.instance,
       path: [...path, 'instance'],
+      node: node.instance,
     })
 
   else if (node.children)
     stack.push({
-      node: node.children,
       path: [...path, 'children'],
+      node: node.children,
     })
 
   while (stack.length)
     yield* crawl(stack.pop())
 }
 
-const decompose = (patch, key, index, { length }) => (
-    key == 'instance'
+const decompose = (patch, key) => (
+    key === 'instance'
   ?
-    { tag: '[', children: [patch], instance: O }
+    ({ instance }) => O(
+      m.fragment({}, []),
+
+      { children: [O(instance, patch)] },
+    )
   :
     { [key]: O(patch) }
 )
