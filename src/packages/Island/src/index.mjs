@@ -5,6 +5,7 @@ export default v => {
   let vnodes // Root vnodes as of last check
   let temp   // Variation of vnodes with components from root to target removed
 
+
   // Flags to qualify nature of current draw loop
   let first = true
   let local = false
@@ -17,27 +18,35 @@ export default v => {
   }
 
   // Refresh & reset references
+<<<<<<< HEAD:src/packages/Island/src/index.mjs
   function tick(fresh){
     v = fresh
+=======
+  function tick(fresh) {
+    v     = fresh
+
+    first = false
+    local = false
+>>>>>>> 6f1aeaf627bdefcc333e1682f759b5c1f776a3bd:src/packages/Island/index.mjs
   }
 
-  function view(){
-    return v.children[0].children({first, local, redraw})
+  function view() {
+    return v.children[0].children({ first, local, redraw })
   }
 
   // Overload redraw function
-  function redraw(handler){
+  function redraw(handler) {
     // Manual, explicit redraw
-    if(typeof handler !== 'function')
+    if (typeof handler !== 'function')
       render()
 
     // Event handler wrapper: inverts Mithril auto-redraw directives:
     else
-      return function(e){
+      return function (e) {
         const output = handler(...arguments)
 
         // Unless e.redraw was set to false, redraw
-        if(e.redraw !== false)
+        if (e.redraw !== false)
           render()
 
         // Prevent global redraw
@@ -51,13 +60,13 @@ export default v => {
     if(!v.dom || !v.dom.parentNode)
       root = [...document.all].find(node => node.vnodes)
 
-    if(!root)
+    else if (!root)
       root = findRoot(v.dom)
 
     local = true
 
     // Determine whether a global redraw took place after last local draw
-    if(vnodes !== root.vnodes){
+    if (vnodes !== root.vnodes) {
       // Refresh all dependent references
       vnodes = root.vnodes
       path   = findWithinRoot(v, root).reverse()
@@ -115,15 +124,15 @@ export default v => {
 }
 
 const findRoot = element => {
-  while(!element.vnodes)
+  while (!element.vnodes)
     element = element.parentNode
 
   return element
 }
 
 const findWithinRoot = (target, root) => {
-  for(const {node, path} of crawl({node: root.vnodes}))
-    if(node === target)
+  for (const { node, path } of crawl({ node: root.vnodes }))
+    if (node === target)
       return path
 }
 
@@ -158,6 +167,7 @@ function* crawl({ node, stack = [], path = [] }) {
 
 const decompose = (patch, key) => (
     key === 'instance'
+<<<<<<< HEAD:src/packages/Island/src/index.mjs
   ?
     ({instance}) => O(
       m.fragment({}, []),
@@ -172,6 +182,14 @@ const recompose = (node, key) => (
     key == 'instance'
   ?
     node.children[0]
+=======
+  ?
+    ({ instance }) => O(
+      m.fragment({}, []),
+
+      { children: [O(instance, patch)] },
+    )
+>>>>>>> 6f1aeaf627bdefcc333e1682f759b5c1f776a3bd:src/packages/Island/index.mjs
   :
     node[key]
 )
