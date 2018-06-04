@@ -1,6 +1,6 @@
 {
-  "name": "cascading-components",
-  "version": "0.0.2",
+  "name": "proponents",
+  "version": "0.0.3",
   "description": "Low-level utility components for Mithril",
   "main": "index.js",
   "dependencies": {
@@ -10,14 +10,13 @@
     "mithril": "^1.0.0"
   },
   "devDependencies": {
+    "http-server": "^0.11.1",
     "mithril": "^1.1.6",
-    "symlink-dir": "^1.1.2",
-    "zwitterion": "^0.27.0"
+    "symlink-dir": "^1.1.2"
   },
   "scripts": {
-    "install": "symlink-dir src node_modules/src",
-    "start": "zwitterion -w --target ESNext",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "http-server -o",
+    "test": "echo \"To test Proponents, please run 'npm start' and navigate to the desired tests\" && exit 1"
   },
   "repository": {
     "type": "git",

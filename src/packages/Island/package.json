@@ -2,20 +2,21 @@
   "name": "mithril-island",
   "version": "0.0.1",
   "description": "Redraw individual components without affecting the surrounding tree",
-  "main": "index.js",
+  "main": "src/index.js",
+  "module": "src/index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/barneycarroll/cascading-components.git"
+    "url": "git+ssh://git@github.com/barneycarroll/proponents.git"
   },
   "author": "Barney Carroll <barney.carroll@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/barneycarroll/cascading-components/issues"
+    "url": "https://github.com/barneycarroll/proponents/issues"
   },
-  "homepage": "https://github.com/barneycarroll/cascading-components#readme",
+  "homepage": "https://github.com/barneycarroll/proponents#readme",
   "peerDependencies": {
     "mithril": "^1.1.6",
     "patchinko": "^3.2.1"

@@ -18,10 +18,7 @@ export default v => {
 
   // Refresh & reset references
   function tick(fresh){
-    v     = fresh
-
-    first = false
-    local = false
+    v = fresh
   }
 
   function view(){
@@ -52,7 +49,7 @@ export default v => {
 
   function render(){
     if(!v.dom || !v.dom.parentNode)
-      root = [...docment.all].find(node => node.vnodes)
+      root = [...document.all].find(node => node.vnodes)
 
     if(!root)
       root = findRoot(v.dom)
@@ -64,55 +61,41 @@ export default v => {
       // Refresh all dependent references
       vnodes = root.vnodes
       path   = findWithinRoot(v, root).reverse()
-
-      window.reduce = []
-
       temp   = O(
         vnodes,
         path.reduce(
-          (patch, key) => (
-            window.reduce.push(patch, key),
-
-              key == 'instance'
-            ?
-              { tag: '[', children: [patch] }
-            :
-              { [key]: O(patch) }
-          ),
-
+          decompose,
           v.instance,
         ),
       )
-
-      window.temp = temp
     }
+
+    // Get our new component instance
+    const instance = view()
+
+    // Clear state flags
+    first = false
+    local = false
 
     // Temporarily swap vnodes for a variation without components
     // to avoid view re-executions
     root.vnodes = temp
 
-    // Get our new component instance
-    const instance = view()
+    temp  = O(
+      vnodes,
+      path.reduce(
+        decompose,
+        instance,
+      ),
+    )
 
     // Trace the path from our (new) local instance up to the root
     // and clone each node in the path for a replacement tree.
     // This ensures a 'hot path', ensuring uncloned siblings aren't redrawn.
     // Render the patched local container + our new local draw
-    m.render(root, temp = O(
-      vnodes,
-      path.reduce(
-        (patch, key) => (
-            key === 'instance'
-          ?
-            patch
-          :
-            { [key]: O(patch) }
-        ),
+    m.render(root, temp)
 
-        instance,
-      ),
-    ))
-
+    // Recompose the tree to match higher order draw expectations
     vnodes = root.vnodes = O(
       vnodes,
       path.reduce(
@@ -120,7 +103,12 @@ export default v => {
           [key]: O(patch)
         }),
 
-        O(v, { instance }),
+        O(v, {
+          instance: [...path].reverse().reduce(
+            recompose,
+            temp,
+          ),
+        }),
       ),
     )
   }
@@ -142,34 +130,48 @@ const findWithinRoot = (target, root) => {
 function* crawl({ node, stack = [], path = [] }) {
   yield { node, path }
 
-  if (Array.isArray(node))
-    stack.push(
-      ...node.map((node, index) => ({
-        node,
+  if (Array.isArray(node)) {
+    let index = node.length
+
+    while (index--)
+      stack.push({
         path: [...path, index],
-      }))
-    )
+        node: node[index],
+      })
+  }
 
   else if (node.instance)
     stack.push({
-      node: node.instance,
       path: [...path, 'instance'],
+      node: node.instance,
     })
 
   else if (node.children)
     stack.push({
-      node: node.children,
       path: [...path, 'children'],
+      node: node.children,
     })
 
   while (stack.length)
     yield* crawl(stack.pop())
 }
 
-const decompose = (patch, key, index, { length }) => (
+const decompose = (patch, key) => (
+    key === 'instance'
+  ?
+    ({instance}) => O(
+      m.fragment({}, []),
+
+      {children: [O(instance, patch)]},
+    )
+  :
+    {[key]: O(patch)}
+)
+
+const recompose = (node, key) => (
     key == 'instance'
   ?
-    { tag: '[', children: [patch], instance: O }
+    node.children[0]
   :
-    { [key]: O(patch) }
+    node[key]
 )

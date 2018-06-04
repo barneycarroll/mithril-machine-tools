@@ -1,6 +1,12 @@
-export default function(v){
+try {
+   module.exports = Inline
+}
+catch(e){}
+
+
+function Inline(v){
   const f = (
-      v.children[0] 
+      v && v.children && v.children[0]
     &&
       typeof v.children[0].children === 'function'
     &&
@@ -13,9 +19,9 @@ export default function(v){
       (
           f.prototype && f.prototype.view
         ?
-          new f(...arguments)
+          new f(v)
         :
-          f(...arguments)
+          f(v)
       )
     :
       {
@@ -23,7 +29,7 @@ export default function(v){
           return (
               v.attrs.view
             ?
-              v.attrs.view(...arguments)
+              v.attrs.view(v)
             :
               v.attrs.children
           )
