@@ -15,10 +15,10 @@ const render = x => {
 const mount  = x => {
   m.mount(document.body, x)
 }
-const frames = (n = 1) =>
-  n && new Promise(window.requestAnimationFrame).then(() => frames(n - 1))
+const frame = (n = 1) =>
+  n && new Promise(window.requestAnimationFrame).then(() => frame(n - 1))
 
-import('../index.mjs').then(({default: Island}) => {
+import('../src/index.mjs').then(({default: Island}) => {
   o.spec('Island', () => {
     o.beforeEach(() => {
       document.body.replaceWith(document.createElement('body'))
@@ -45,102 +45,81 @@ import('../index.mjs').then(({default: Island}) => {
     })
 
     o.spec('`redraw`', () => {
-      o('can be called to trigger isolated redraws', async (done, timeout) => {
-        timeout(40)
+      let higher
+      let lower
 
-        let global
-        let local
+      let Higher
+      let Lower
 
-        {
-          const Global = {
-            oninit: v => {
-              global = v.state
-              v.state.draws = 0
-            },
-            view: v =>
-              ++v.state.draws,
-          }
-          const Local = {
-            oninit: v => {
-              local = v.state
-              v.state.draws = 0
-            },
-            view: v =>
-              ++v.state.draws,
-          }
+      o.beforeEach(() => {
+        higher = undefined
+        lower  = undefined
 
-          mount({
-            view: () => [
-              m(Global),
-
-              m(Island, ({ redraw }) =>
-                m(Local, {
-                  oncreate: () => {
-                    frames(1).then(() => {
-                      redraw()
-                    })
-                  },
-                })
-              )
-            ]
-          })
+        Higher = {
+          oninit: v => {
+            higher = v.state
+            v.state.draws = 0
+          },
+          view: v =>
+            ++v.state.draws,
         }
-
-        o(global.draws).equals(1)
-        o(local.draws).equals(1)
-
-        await frames(1)
-
-        o(global.draws).equals(1)
-        o(local.draws).equals(2)
-
-        done()
+        Lower = {
+          oninit: v => {
+            lower = v.state
+            v.state.draws = 0
+          },
+          view: v =>
+            ++v.state.draws,
+        }
       })
 
-      o('can wrap event handlers to auto-trigger isolated redraws', async (done, timeout) => {
-        timeout(40)
+      o('can be called to trigger isolated redraws', async () => {
+        mount({
+          view: () => [
+            m(Higher),
 
-        let global
-        let local
+            m(Island, ({ redraw }) =>
+              m(Lower, {
+                oncreate: async () => {
+                  await frame()
+
+                  redraw()
+                },
+              })
+            )
+          ]
+        })
+
+        o(higher.draws).equals(1)
+        o(lower.draws).equals(1)
+
+        await frame()
+
+        o(higher.draws).equals(1)
+        o(lower.draws).equals(2)
+      })
+
+      o('can wrap event handlers to auto-trigger isolated redraws', async () => {
         let clicked
 
-        {
-          const Global = {
-            oninit: v => {
-              global = v.state
-              v.state.draws = 0
-            },
-            view: v =>
-              ++v.state.draws,
-          }
-          const Local = {
-            oninit: v => {
-              local = v.state
-              v.state.draws = 0
-            },
-            view: v =>
-              ++v.state.draws,
-          }
+        mount({
+          view: () => [
+            m(Higher),
 
-          mount({
-            view: () => [
-              m(Global),
+            m(Island, ({ redraw }) => [
+              m(Lower),
 
-              m(Island, ({ redraw }) => [
-                m(Local),
-
-                m('button', {
-                  onclick: redraw(e => {
-                    clicked = true
-                  })
+              m('button', {
+                onclick: redraw(e => {
+                  clicked = true
                 })
-              ])
-            ]
-          })
-        }
+              })
+            ])
+          ]
+        })
 
-        o(global.draws).equals(1)
-        o(local.draws).equals(1)
+        o(higher.draws).equals(1)
+        o(lower.draws).equals(1)
 
         {
           const click = document.createEvent('MouseEvent')
@@ -152,18 +131,14 @@ import('../index.mjs').then(({default: Island}) => {
 
         o(clicked).equals(true)
 
-        await frames(1)
+        await frame()
 
-        o(global.draws).equals(1)
-        o(local.draws).equals(2)
-
-        done()
+        o(higher.draws).equals(1)
+        o(lower.draws).equals(2)
       })
     })
 
-    o('`local` flag', async (done, timeout) => {
-      timeout(40)
-
+    o('`local` flag', done => {
       mount({
         view: () =>
           m(Island, ({ local, redraw }) =>
@@ -172,7 +147,7 @@ import('../index.mjs').then(({default: Island}) => {
                 o(local).equals(false)
                   ('is `false` during higher order draws')
 
-                frames(1).then(redraw)
+                frame().then(redraw)
               },
 
               onupdate: () => {
@@ -186,22 +161,20 @@ import('../index.mjs').then(({default: Island}) => {
       })
     })
 
-    o('`first` flag', (done, timeout) => {
-      timeout(80)
-
+    o('`first` flag', done => {
       const tests = [
         ({first, redraw}) => {
           o(first).equals(true)
             ('is `true` on first draw')
 
-          frames(1).then(redraw)
+          frame().then(redraw)
         },
 
         ({first}) => {
           o(first).equals(false)
             ('is `false` on local redraw')
 
-          frames(1).then(m.redraw)
+          frame().then(m.redraw)
         },
 
         ({first}) => {
