@@ -11,23 +11,11 @@ export default v => {
   let local = false
 
   return {
-    oncreate: tick,
-    onupdate: tick,
+    onupdate: fresh => {
+      v = fresh
+    },
 
     view,
-  }
-
-  // Refresh & reset references
-<<<<<<< HEAD:src/packages/Island/src/index.mjs
-  function tick(fresh){
-    v = fresh
-=======
-  function tick(fresh) {
-    v     = fresh
-
-    first = false
-    local = false
->>>>>>> 6f1aeaf627bdefcc333e1682f759b5c1f776a3bd:src/packages/Island/index.mjs
   }
 
   function view() {
@@ -167,7 +155,6 @@ function* crawl({ node, stack = [], path = [] }) {
 
 const decompose = (patch, key) => (
     key === 'instance'
-<<<<<<< HEAD:src/packages/Island/src/index.mjs
   ?
     ({instance}) => O(
       m.fragment({}, []),
@@ -182,14 +169,6 @@ const recompose = (node, key) => (
     key == 'instance'
   ?
     node.children[0]
-=======
-  ?
-    ({ instance }) => O(
-      m.fragment({}, []),
-
-      { children: [O(instance, patch)] },
-    )
->>>>>>> 6f1aeaf627bdefcc333e1682f759b5c1f776a3bd:src/packages/Island/index.mjs
   :
     node[key]
 )
