@@ -5,7 +5,7 @@ let context = {}
 
 export const Provider = {
   view: v => {
-    const oldContext = context
+    const previous = context
     
     context = {
       ...context,
@@ -16,7 +16,7 @@ export const Provider = {
       v.children,
       
       m(Inline, {view: () => {
-        context = oldContext
+        context = previous
       }}),
     ]
   }

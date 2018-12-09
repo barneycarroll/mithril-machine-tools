@@ -1,3 +1,5 @@
+import {viewOf} from '../src/utils.js'
+
 export default v => {
   let customers = []
   

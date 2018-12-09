@@ -5,7 +5,7 @@ o.spec('Promiser', () => {
     m.render(document.body, null)
   })
 
-  o('Consumes a `promise` and implements the view function interface', async () => {
+  o('Consumes a `promise` and implements the `viewOf` interface', async () => {
     const promise = Promise.resolve()
 
     m.mount(document.body, {
