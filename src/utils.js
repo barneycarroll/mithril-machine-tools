@@ -17,7 +17,7 @@ export const viewOf = v => (
           this,
         )
           
-        return this.prototype.toString.call(this)
+        return Reflect.getPrototypeOf(this).toString.call(this))
       }},
     )
 )
