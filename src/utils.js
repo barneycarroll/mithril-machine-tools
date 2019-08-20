@@ -1,8 +1,4 @@
 export const viewOf = v => (
-    v.children[0] && v.children[0].children && typeof v.children[0].children === 'function'
-  ?
-    v.children[0].children
-  :
     typeof v.children[0] === 'function'
   ?
     v.children[0]
@@ -11,5 +7,17 @@ export const viewOf = v => (
   ?
     v.attrs.view
   :
-    () => v.children
+    Object.assign(
+      () => v.children,
+        
+      {toString(){
+        console.warn(
+          'A viewOf(v) generated view function was stringified rather than called:' +
+          'make sure to invoke the return value: viewOf(v)(x)',
+          this,
+        )
+          
+        return this.prototype.toString.call(this)
+      }},
+    )
 )
