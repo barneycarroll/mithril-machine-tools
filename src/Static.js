@@ -12,14 +12,10 @@ export default function Static(){
         m.render(root, vnodes.map(copy))
       
       return false
-    },
+    }
   }
   
   function Live(){
-    let parent
-    let index
-    let range
-    
     return {
       view: v =>
         viewOf(v)(() => {
@@ -27,11 +23,9 @@ export default function Static(){
         }),
       
       oncreate: v => {
-        const {dom} = v
-
-        parent = dom.parentNode
-        index  = indexOf(dom)
-        range  = getSet(ranges, parent, () => 
+        const parent = v.dom.parentNode
+        const index  = indexOf(v.dom)
+        const range  = getSet(ranges, parent, () => 
           Array(index + 1),
         )
 
@@ -44,7 +38,7 @@ export default function Static(){
 }
 
 function copy(x){
-  return typeof x === 'object' ? Object.assign(new x.constructor, x) : x
+  return typeof x == 'object' ? Object.assign(new x.constructor, x) : x
 }
 
 function indexOf(dom, index = 0){
