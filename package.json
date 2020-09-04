@@ -10,7 +10,7 @@
     "mithril": "^1.0.0"
   },
   "devDependencies": {
-    "mithril": "^1.1.6",
+    "mithril": "^1.1.7",
     "symlink-dir": "^1.1.2",
     "zwitterion": "^0.27.0"
   },
