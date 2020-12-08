@@ -1,4 +1,8 @@
-import {viewOf} from './utils.js'
+// Consumes a {promise} attribute and a view.
+// The view is provided with the promises state representation:
+// {pending, settled, rejected, resolved, value, error}
+// A redraw is triggered when the promise settles.
+import {viewOf} from './_utils.js'
 
 export default v => {
   const state = {

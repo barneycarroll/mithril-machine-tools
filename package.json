@@ -1,23 +1,10 @@
 {
   "name": "cascading-components",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "Low-level utility components for Mithril",
-  "main": "index.js",
-  "dependencies": {
-    "patchinko": "^3.0.0"
-  },
-  "peerDependencies": {
-    "mithril": "^1.0.0"
-  },
-  "devDependencies": {
-    "mithril": "^1.1.6",
-    "symlink-dir": "^1.1.2",
-    "zwitterion": "^0.27.0"
-  },
+  "main": "proponents.js",
   "scripts": {
-    "install": "symlink-dir src node_modules/src",
-    "start": "zwitterion -w --target ESNext",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tap"
   },
   "repository": {
     "type": "git",
@@ -34,5 +21,10 @@
   "bugs": {
     "url": "https://github.com/barneycarroll/cascading-components/issues"
   },
-  "homepage": "https://github.com/barneycarroll/cascading-components#readme"
+  "homepage": "https://github.com/barneycarroll/cascading-components#readme",
+  "devDependencies": {
+    "jsdom": "16.4.0",
+    "mithril": "2.0.4",
+    "tap": "14.11.0"
+  }
 }

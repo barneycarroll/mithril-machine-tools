@@ -1,3 +1,4 @@
+// A component whose definition is supplied at the call site.
 export default v => (
     typeof v.attrs.view === 'function'
   ?

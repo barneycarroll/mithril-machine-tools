@@ -1,4 +1,6 @@
-import {viewOf} from './utils.js'
+// High-order Static component exposes low-order Live component.
+// Static is never recomputed, except for Live subtrees. 
+import {getSet, indexOf, viewOf} from './_utils.js'
 
 export default function Static(){
   const ranges = new Map
@@ -18,9 +20,7 @@ export default function Static(){
   function Live(){
     return {
       view: v =>
-        viewOf(v)(() => {
-          m.render(parent, zone.map(copy))
-        }),
+        viewOf(v)(),
       
       oncreate: v => {
         const parent = v.dom.parentNode
@@ -39,22 +39,4 @@ export default function Static(){
 
 function copy(x){
   return typeof x == 'object' ? Object.assign(new x.constructor, x) : x
-}
-
-function indexOf(dom, index = 0){
-  while(dom = dom.previousSibling)
-    index++
-  
-  return index
-}
-
-function getSet(map, key, factory){
-  if(map.has(key))
-    return map.get(key)
-  
-  const value = factory()
-  
-  map.set(key, value)
-  
-  return value
 }

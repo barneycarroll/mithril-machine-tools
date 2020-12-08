@@ -1,20 +1,8 @@
+// High-order component Waiter exposes low-order component Service.
+// Waiters onbeforeremove triggers all Services immediate childrens
+// onbeforemove and resolves with the last of them.
 export default v => {
   let customers = []
-  
-  const greet = v => {
-    customers.push(...v.children)
-  }
-  
-  const serve = () => 
-    Promise.all(
-      customers.map(v =>
-        Promise.all(
-          [v.tag, v.attrs].map(x =>
-            x.onbeforeremove && x.onbeforeremove.call(v.state, v)
-          )
-        )
-      )
-    )
   
   const Service = {
     view: v => 
@@ -34,5 +22,21 @@ export default v => {
     
     onbeforeremove: 
       serve,
+  }
+
+  function greet(v){
+    customers.push(...v.children)
+  }
+
+  function serve(){
+    return Promise.all(
+      customers.map(v =>
+        Promise.all(
+          [v.tag, v.attrs].map(x =>
+            x.onbeforeremove && x.onbeforeremove.call(v.state, v)
+          )
+        )
+      )
+    )
   }
 }
