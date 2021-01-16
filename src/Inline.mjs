@@ -10,5 +10,5 @@ export default v => (
   ?
     v.children[0](v)
   :
-    console.error('Inline component must be provided with a closure or POJO component declaration as its first argument')
+    console.error('Inline component must be provided with a component definition in POJO or clsoure form')
 )

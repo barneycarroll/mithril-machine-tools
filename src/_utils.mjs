@@ -38,14 +38,14 @@ export function indexOf(dom) {
 export function viewOf(v) {
   const view = (
     typeof v.children[0] === 'function'
-      ?
-      v.children[0]
-      :
-      typeof v.attrs.view === 'function'
-        ?
-        v.attrs.view
-        :
-        () => v.children
+  ?
+    v.children[0]
+  :
+    typeof v.attrs.view === 'function'
+  ?
+    v.attrs.view
+  :
+    () => v.children
   )
 
   return Object.assign(

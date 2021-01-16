@@ -1,6 +1,6 @@
 // High-order Static component exposes low-order Live component.
 // Static is never recomputed, except for Live subtrees. 
-import {getSet, indexOf, viewOf} from './_utils.js'
+import {getSet, indexOf, viewOf} from './_utils.mjs'
 
 export default function Static(){
   const ranges = new Map
@@ -10,8 +10,15 @@ export default function Static(){
       viewOf(v)(Live),
       
     onbeforeupdate: () => {
-      for(const [root, vnodes] of ranges)
-        m.render(root, vnodes.map(copy))
+      for(const [root, range] of ranges){
+        const {vnodes} = root
+
+        root.vnodes = range
+
+        m.render(root, range.map(copy))
+
+        root.vnodes = vnodes
+      }
       
       return false
     }
@@ -30,8 +37,6 @@ export default function Static(){
         )
 
         range[index] = v
-
-        parent.vnodes = range
       },
     }
   }

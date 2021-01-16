@@ -1,14 +1,16 @@
 {
-  "name": "cascading-components",
-  "version": "1.0.0",
+  "name": "mithril-machine-tools",
+  "version": "1.0.0-rc.1",
   "description": "Low-level utility components for Mithril",
-  "main": "proponents.js",
+  "type": "module",
+  "main": "index.mjs",
   "scripts": {
-    "test": "tap"
+    "test": "node ./tests.mjs",
+    "serve": "http-server -o /tests.html"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/barneycarroll/cascading-components.git"
+    "url": "git+https://github.com/barneycarroll/mithril-machine-tools.git"
   },
   "keywords": [
     "mithril",
@@ -19,12 +21,16 @@
   "author": "Barney Carroll <barney.carroll@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/barneycarroll/cascading-components/issues"
+    "url": "https://github.com/barneycarroll/mithril-machine-tools/issues"
   },
-  "homepage": "https://github.com/barneycarroll/cascading-components#readme",
+  "homepage": "https://github.com/barneycarroll/mithril-machine-tools#readme",
+  "peerDependencies": {
+    "mithril": ">0"
+  },
   "devDependencies": {
+    "http-server": "0.12.3",
     "jsdom": "16.4.0",
     "mithril": "2.0.4",
-    "tap": "14.11.0"
+    "ospec": "4.1.1"
   }
 }
