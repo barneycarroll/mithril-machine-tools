@@ -1,4 +1,4 @@
-import {viewOf} from '../src/utils.js'
+import {viewOf} from '../src/_utils.js'
 
 o.spec('viewOf', () => {
   o.spec('Infers a supplied view function from a given node and exposes its return value', () => {

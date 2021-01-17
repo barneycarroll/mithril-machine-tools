@@ -1,5 +1,8 @@
-import {viewOf} from './src/utils.js'
-import Inline   from './src/Inline.js'
+// Provider components attributes are registered as 'context'
+// Receiver component views receive a composite of context as defined by the super-tree
+// Context composition follows the logic of the CSS cascade
+import {viewOf} from './_utils.mjs'
+import Inline   from './Inline.mjs'
 
 let context = {}
 

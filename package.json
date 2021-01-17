@@ -1,27 +1,16 @@
 {
-  "name": "cascading-components",
-  "version": "0.0.2",
+  "name": "mithril-machine-tools",
+  "version": "1.0.0-rc.1",
   "description": "Low-level utility components for Mithril",
-  "main": "index.js",
-  "dependencies": {
-    "patchinko": "^3.0.0"
-  },
-  "peerDependencies": {
-    "mithril": "^1.0.0"
-  },
-  "devDependencies": {
-    "mithril": "^1.1.6",
-    "symlink-dir": "^1.1.2",
-    "zwitterion": "^0.27.0"
-  },
+  "type": "module",
+  "main": "index.mjs",
   "scripts": {
-    "install": "symlink-dir src node_modules/src",
-    "start": "zwitterion -w --target ESNext",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node ./tests.mjs",
+    "serve": "http-server -o /tests.html"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/barneycarroll/cascading-components.git"
+    "url": "git+https://github.com/barneycarroll/mithril-machine-tools.git"
   },
   "keywords": [
     "mithril",
@@ -32,7 +21,16 @@
   "author": "Barney Carroll <barney.carroll@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/barneycarroll/cascading-components/issues"
+    "url": "https://github.com/barneycarroll/mithril-machine-tools/issues"
   },
-  "homepage": "https://github.com/barneycarroll/cascading-components#readme"
+  "homepage": "https://github.com/barneycarroll/mithril-machine-tools#readme",
+  "peerDependencies": {
+    "mithril": ">0"
+  },
+  "devDependencies": {
+    "http-server": "0.12.3",
+    "jsdom": "16.4.0",
+    "mithril": "2.0.4",
+    "ospec": "4.1.1"
+  }
 }
