@@ -3,19 +3,15 @@ import {readdirSync}   from 'fs'
 
 const require = createRequire(import.meta.url)
 
-const { JSDOM } = require('jsdom')
-const o         = require('ospec')
-
-global.o = o
+global.o = require('ospec')
 
 o.beforeEach(() => {
   const dom = new JSDOM('', { pretendToBeVisual: true })
 
-  Object.assign(global, {
-    document              : dom.window.document,
-    window                : dom.window,
-    requestAnimationFrame : dom.window.requestAnimationFrame,
-  })
+  global.window                = require('mithril/test-utils/domMock.js')(),
+  global.document              = window.document
+  global.requestAnimationFrame = callback =>
+    global.setTimeout(callback, 1000 / 60)
 
   global.m = require('mithril')
 })
