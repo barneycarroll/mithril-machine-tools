@@ -6,8 +6,6 @@ const require = createRequire(import.meta.url)
 global.o = require('ospec')
 
 o.beforeEach(() => {
-  const dom = new JSDOM('', { pretendToBeVisual: true })
-
   global.window                = require('mithril/test-utils/domMock.js')(),
   global.document              = window.document
   global.requestAnimationFrame = callback =>
