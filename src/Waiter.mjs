@@ -3,12 +3,8 @@
 // onbeforemove and resolves with the last of them.
 import {viewOf} from './_utils.mjs'
 
-let count = 0
-
 export default v => {
   const customers = []
-
-  const id = count++
   
   return {
     view: v => 
@@ -17,14 +13,8 @@ export default v => {
     onupdate: () => {
       customers.length = 0
     },
-    
-    onremove: () => {
-      console.log(id + ' gone')
-    },
 
     onbeforeremove: () => {
-      console.log(id + ' going')
-
       const services = 
         customers.flatMap(v =>
           [v.state, v.attrs].flatMap(x =>
