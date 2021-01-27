@@ -4,28 +4,36 @@
 import {viewOf} from './_utils.mjs'
 import Inline   from './Inline.mjs'
 
-let context = {}
-
-export const Provider = {
-  view: v => {
-    const oldContext = context
-    
-    context = {
-      ...context,
-      ...v.attrs,
-    }
-    
-    return [
-      v.children,
-      
-      m(Inline, {view: () => {
-        context = oldContext
-      }}),
-    ]
+export default function createContext(context){
+  return {
+    Receiver,
+    Provider,
   }
-}
 
-export const Receiver = {
-  view: v => 
-    viewOf(v)(context),
+  function Receiver() {
+    return {
+      view: v =>
+        viewOf(v)(context),
+    }
+  }
+
+  function Provider(){
+    return {
+      view: v => {
+        const previous = context
+
+        context = v.attrs.value
+
+        return [
+          v.children,
+
+          m(Inline, {
+            view: () => {
+              context = previous
+            },
+          }),
+        ]
+      },
+    }
+  }
 }

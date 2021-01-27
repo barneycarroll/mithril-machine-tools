@@ -1,10 +1,21 @@
-import {Provider, Receiver} from '../src/Context.mjs'
+import createContext from '../src/Context.mjs'
 
 o.spec('Context', () => {
   o.spec('API', () => {
+    var Context
+
+    o('Exports a factory returning Provider and Receiver components', () => {
+      Context = createContext()
+
+      m.render(document.body, [
+        m(Context.Provider),
+        m(Context.Receiver),
+      ])
+    })
+
     o('Provider component passes through children', () => {
       m.render(document.body,
-        m(Provider, 'foo'),
+        m(Context.Provider, 'foo'),
       )
 
       o(document.body.textContent).equals('foo')
@@ -12,7 +23,7 @@ o.spec('Context', () => {
 
     o('Receiver component implements viewOf', () => {
       m.render(document.body,
-        m(Receiver, () => 'bar'),
+        m(Context.Receiver, () => 'bar'),
       )
 
       o(document.body.textContent).equals('bar')
@@ -23,8 +34,8 @@ o.spec('Context', () => {
     const contextIn = { foo: 'bar' }
 
     m.render(document.body,
-      m(Provider, contextIn,
-        m(Receiver, contextOut => {
+      m(Context.Provider, contextIn,
+        m(Context.Receiver, contextOut => {
           o(contextOut).deepEquals(contextIn)
           o(contextOut).notEquals( contextIn)
         }),
@@ -35,17 +46,17 @@ o.spec('Context', () => {
 
   o('Lower order attributes override higher order', () => {
     m.render(document.body,
-      m(Provider, { 
-        foo  : 'bar',
-        fizz : 'buzz' 
+      m(Context.Provider, {
+        foo: 'bar',
+        fizz: 'buzz'
       },
-        m(Provider, {
-          foo : 'baz',
+        m(Context.Provider, {
+          foo: 'baz',
         },
-          m(Receiver, contextOut => {
+          m(Context.Receiver, contextOut => {
             o(contextOut).deepEquals({
-              foo  : 'baz',
-              fizz : 'buzz',
+              foo: 'baz',
+              fizz: 'buzz',
             })
           }),
         ),

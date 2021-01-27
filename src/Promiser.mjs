@@ -4,7 +4,7 @@
 // A redraw is triggered when the promise settles.
 import {viewOf} from './_utils.mjs'
 
-export default () => {
+export default function Promiser(){
   const state = {
     error    : undefined,
     value    : undefined,
