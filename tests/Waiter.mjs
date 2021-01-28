@@ -1,4 +1,5 @@
 import Waiter from '../src/Waiter.mjs'
+import {getSet} from '../src/_utils.mjs'
 
 o.spec('Waiter', () => {
   o.spec('API', () => {
@@ -29,8 +30,8 @@ o.spec('Waiter', () => {
     const onremove       = o.spy()
     const onbeforeremove = o.spy(() =>
       new Promise(y => {
-        resolutions.push(y)
-      })
+          resolutions.push(y)
+        })
     )
 
     m.mount(document.body, {
@@ -56,8 +57,7 @@ o.spec('Waiter', () => {
     resolutions[0]()
 
     await Promise.resolve()
-
-    m.redraw.sync()
+    await Promise.resolve()
 
     o(onremove.callCount).equals(0)
       `Delay Waiters removal`
@@ -65,14 +65,13 @@ o.spec('Waiter', () => {
     resolutions[1]()
 
     await Promise.resolve()
-    
-    m.redraw.sync()
+    await Promise.resolve()
 
     o(onremove.callCount).equals(1)
       `Wait for Serviced onbeforeremoves resolve`
   })
 
-  o('On removal trigger, nearby onbeforeremoves', () => {
+  o('On removal trigger, nearby onbeforeremoves', async () => {
     let present = true
 
     const onremove       = o.spy()
@@ -100,6 +99,9 @@ o.spec('Waiter', () => {
 
     o(onremove.callCount).equals(1)
       `Do not delay Waiters removal`
+
+    await Promise.resolve()
+    await Promise.resolve()
 
     o(onbeforeremove.callCount).equals(0)
       `Do not get triggered`
