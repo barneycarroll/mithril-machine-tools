@@ -18,7 +18,7 @@ export default v => {
       const services = 
         customers.flatMap(v =>
           [v.state, v.attrs].flatMap(x =>
-            x?.onbeforeremove?.call(v.state, v) || []
+            x && x.onbeforeremove && x.onbeforeremove.call(v.state, v) || []
           )
         )
       
