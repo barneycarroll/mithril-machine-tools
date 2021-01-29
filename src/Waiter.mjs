@@ -4,24 +4,27 @@
 import {viewOf} from './_utils.mjs'
 
 export default v => {
-  let customers = []
+  const customers = []
   
   return {
     view: v => 
       viewOf(v)(Service),
       
     onupdate: () => {
-      customers = []
+      customers.length = 0
     },
-    
-    onbeforeremove: () =>
-      Promise.all(customers.map(v =>
-        Promise.all(
-          [v.tag, v.attrs].map(x =>
-            x && x.onbeforeremove && x.onbeforeremove.call(v.state, v)
+
+    onbeforeremove: () => {
+      const services = 
+        customers.flatMap(v =>
+          [v.state, v.attrs].flatMap(x =>
+            x && x.onbeforeremove ? x.onbeforeremove.call(v.state, v) : []
           )
         )
-      )),
+      
+      if(services.length)
+        return Promise.all(services)
+    },
   }
 
   function Service(){

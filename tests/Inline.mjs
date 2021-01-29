@@ -2,7 +2,7 @@ import Inline from '../src/Inline.mjs'
 
 o.spec('Inline', () => {
   o.spec('Consumes and processes inline component declarations', () => {
-    o('In POJO form', async () => {
+    o('In POJO form', () => {
       m.render(document.body, 
         m(Inline, {
           view: () => 'foo',
@@ -24,7 +24,7 @@ o.spec('Inline', () => {
   })
   
   o.spec('Maintains state', () => {
-    o('In POJO form', async () => {
+    o('In POJO form', () => {
       m.mount(document.body, {
         view: () =>
           m(Inline, {
@@ -43,14 +43,12 @@ o.spec('Inline', () => {
 
       o(document.body.textContent).equals('0')
       
-      m.redraw()
-      
-      await new Promise(requestAnimationFrame)
+      m.redraw.sync()
 
       o(document.body.textContent).equals('1')
     })
     
-    o('In closure form', async () => {
+    o('In closure form', () => {
       m.mount(document.body, {
         view: () =>
           m(Inline, () => {
@@ -69,16 +67,14 @@ o.spec('Inline', () => {
 
       o(document.body.textContent).equals('0')
 
-      m.redraw()
-
-      await new Promise(requestAnimationFrame)
+      m.redraw.sync()
 
       o(document.body.textContent).equals('1')
     })
   })
   
-  o.spec('Keys reset', async () => {
-    o('In POJO form', async () => {
+  o.spec('Keys reset', () => {
+    o('In POJO form', () => {
       const Component = {
         view: () => '',
 
@@ -97,9 +93,7 @@ o.spec('Inline', () => {
 
       key++
 
-      m.redraw()
-
-      await new Promise(requestAnimationFrame)
+      m.redraw.sync()
 
       o(Component.oninit.callCount)
         .equals(2)
@@ -108,7 +102,7 @@ o.spec('Inline', () => {
         .equals(0)
     })
     
-    o('In closure form', async () => {
+    o('In closure form', () => {
       const oninit   = o.spy()
       const onupdate = o.spy()
 
@@ -132,9 +126,7 @@ o.spec('Inline', () => {
 
       key++
 
-      m.redraw()
-
-      await new Promise(requestAnimationFrame)
+      m.redraw.sync()
 
       o(oninit.callCount)
         .equals(2)

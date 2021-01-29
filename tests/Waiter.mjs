@@ -1,4 +1,5 @@
 import Waiter from '../src/Waiter.mjs'
+import {getSet} from '../src/_utils.mjs'
 
 o.spec('Waiter', () => {
   o.spec('API', () => {
@@ -29,87 +30,78 @@ o.spec('Waiter', () => {
     const onremove       = o.spy()
     const onbeforeremove = o.spy(() =>
       new Promise(y => {
-        resolutions.push(y)
-      })
+          resolutions.push(y)
+        })
     )
 
     m.mount(document.body, {
       view: () =>
         present &&
-        m(Waiter, {onremove}, Service => [
-          m(Service, m('div', {onbeforeremove})),
+          m(Waiter, {onremove}, Service => [
+            m(Service, m('div', {onbeforeremove})),
 
-          m(Service, m('div', {onbeforeremove})),
-        ]),
+            m(Service, m('div', {onbeforeremove})),
+          ]),
     })
-
-    await new Promise(requestAnimationFrame)
 
     present = false
 
-    m.redraw()
-
-    await new Promise(requestAnimationFrame)
+    m.redraw.sync()
 
     o(onremove.callCount).equals(0)
-      `Delays Waiters removal`
+      `Delay Waiters removal`
 
     o(onbeforeremove.callCount).equals(2)
-      `Triggers Serviced onbeforeremoves`
+      `Trigger Serviced onbeforeremoves`
 
     resolutions[0]()
 
-    await new Promise(requestAnimationFrame)
+    await Promise.resolve()
+    await Promise.resolve()
 
     o(onremove.callCount).equals(0)
-      `Delays Waiters removal`
+      `Delay Waiters removal`
 
     resolutions[1]()
 
-    await new Promise(requestAnimationFrame)
+    await Promise.resolve()
+    await Promise.resolve()
 
     o(onremove.callCount).equals(1)
-      `Until all Serviced onbeforeremoves resolve`
+      `Wait for Serviced onbeforeremoves resolve`
   })
 
   o('On removal trigger, nearby onbeforeremoves', async () => {
     let present = true
 
-    const resolutions = []
-
     const onremove       = o.spy()
-    const onbeforeremove = o.spy(() =>
-      new Promise(y => {
-        resolutions.push(y)
-      })
-    )
+    const onbeforeremove = o.spy()
 
     m.mount(document.body, {
       view: () =>
         present &&
-        m(Waiter, {onremove}, Service => [
-          m('div', {onbeforeremove}),
+          m(Waiter, {onremove}, Service => [
+            m('div', {onbeforeremove}),
 
-          m(Service, {onbeforeremove}),
+            m(Service, {onbeforeremove}),
 
-          m(Service, 
-            m('div',
-              m('div', {onbeforeremove}),
+            m(Service, 
+              m('div',
+                m('div', {onbeforeremove}),
+              ),
             ),
-          ),
-        ]),
+          ]),
     })
-
-    await new Promise(requestAnimationFrame)
 
     present = false
 
-    m.redraw()
-
-    await new Promise(requestAnimationFrame)
+    m.redraw.sync()
 
     o(onremove.callCount).equals(1)
       `Do not delay Waiters removal`
+
+    await Promise.resolve()
+    await Promise.resolve()
 
     o(onbeforeremove.callCount).equals(0)
       `Do not get triggered`

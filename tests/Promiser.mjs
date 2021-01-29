@@ -1,7 +1,7 @@
 import Promiser from '../src/Promiser.mjs'
 
-o.spec('Promiser', async () => {
-  o.spec('API', async () => {
+o.spec('Promiser', () => {
+  o.spec('API', () => {
     o('Consumes a `promise` & implements viewOf', () => {
       const promise = Promise.resolve()
 
@@ -13,8 +13,8 @@ o.spec('Promiser', async () => {
     })
   })
 
-  o.spec('Exposes an object describing promise state', async () => {
-    o('Pending', async () => {
+  o.spec('Exposes an object describing promise state', () => {
+    o('Pending', () => {
       let state
 
       const promise = new Promise(() => {})
@@ -55,8 +55,9 @@ o.spec('Promiser', async () => {
       
       resolve('foo')
 
-      await new Promise(requestAnimationFrame)
-      await new Promise(requestAnimationFrame)
+      await Promise.resolve()
+
+      m.redraw.sync()
       
       o(state).deepEquals({
         pending  : false,
@@ -87,8 +88,9 @@ o.spec('Promiser', async () => {
       
       reject('bar')
 
-      await new Promise(requestAnimationFrame)
-      await new Promise(requestAnimationFrame)
+      await Promise.resolve()
+
+      m.redraw.sync()
       
       o(state).deepEquals({
         pending  : false,

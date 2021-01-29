@@ -1,6 +1,6 @@
 import Static from '../src/Static.mjs'
 
-o.spec('Static', async () => {
+o.spec('Static', () => {
   o.spec('API', () => {
     o('Implements viewOf', () => {
       m.render(document.body,
@@ -21,7 +21,7 @@ o.spec('Static', async () => {
     })
   })
 
-  o('Contents do not update', async () => {
+  o('Contents do not update', () => {
     let count = 0
 
     m.mount(document.body, {
@@ -32,19 +32,15 @@ o.spec('Static', async () => {
       ]
     })
 
-    await new Promise(requestAnimationFrame)
-
     count++
 
-    m.redraw()
-
-    await new Promise(requestAnimationFrame)
+    m.redraw.sync()
 
     o(document.body.textContent).equals('10')
   })
 
 
-  o('Live contents do update', async () => {
+  o('Live contents do update', () => {
     let count = 0
 
     m.mount(document.body, {
@@ -59,15 +55,11 @@ o.spec('Static', async () => {
       ]
     })
 
-    await new Promise(requestAnimationFrame)
-
     o(document.body.textContent).equals('000')
 
     count++
 
-    m.redraw()
-
-    await new Promise(requestAnimationFrame)
+    m.redraw.sync()
 
     o(document.body.textContent).equals('101')
   })

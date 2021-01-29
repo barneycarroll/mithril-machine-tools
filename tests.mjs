@@ -8,8 +8,8 @@ const { JSDOM } = require('jsdom')
 const dom = new JSDOM('', { pretendToBeVisual: true })
 
 Object.assign(global, {
-  document             : dom.window.document,
   window               : dom.window,
+  document             : dom.window.document,
   requestAnimationFrame: dom.window.requestAnimationFrame,
 })
 
@@ -20,6 +20,8 @@ Object.assign(global, {
 
 o.afterEach(() => {
   document.body.innerHTML = ''
+
+  delete document.body.vnodes
 })
 
 Promise.all(

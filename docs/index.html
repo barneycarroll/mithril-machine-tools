@@ -1,0 +1,135 @@
+<!doctype html>
+<html class=bold>
+  <head>
+    <meta charset=utf-8>
+
+    <title>
+      Mithril Machine Tools
+    </title>
+
+    <link rel=stylesheet href=./style.css />
+  </head>
+
+  <body>
+    <div class=intro>
+      <div class=intro-child>
+        <h1>
+          Mithril Machine Tools
+        </h1>
+    
+        <p>
+          Putting the hype back in hyperscript, the OM back in virtual DOM; A collection of power tool components &amp;
+          utilities for <a href=https://mithril.js.org>Mithril</a>
+        </p>
+    
+        <p><code>npm i --save mithril-machine-tools</code></p>
+
+        <p><code>import * as mmt from 'mithril-machine-tools'</code></p>
+      </div>
+    </div>
+
+    <hr />
+
+    <h2>
+      Utilities
+    </h2>
+
+    <h3>
+      <code>viewOf(vnode)()</code>
+    </h3>
+
+    <p>
+      Used to write components whose view is defined at the call site in order to implement what React calls <a
+        href=https://reactjs.org/docs/render-props.html>render props</a>: this enables components whose purpose is not to
+      determine the shape &amp; content of the subtree but to qualify its execution context by passing in values,
+      determining when and how it is called, etc. Its simplest implementation is in the <a href=#Promiser>Promiser</a>
+      component; it is also used by <a href=#Context>Context</a>, <a href=#Mobile>Mobile</a> &amp; <a
+        href=#Waiter>Waiter</a>.
+    </p>
+
+
+    <h3>
+      <code>domOf(vnode)</code>
+    </h3>
+
+    <p>
+      Returns an array of DOM nodes represented by the supplied <code>vnode</code>
+    </p>
+
+    <h3>
+      <code>indexOf(dom)</code>
+    </h3>
+
+    <p>
+      Returns the index of a DOM node within its parents <code>childnodes</code>
+    </p>
+
+    <h3>
+      <code>getSet(map, key, factory)</code>
+    </h3>
+
+    <p>
+      Consumes a <code>(Weak)Map</code>, a key and a factory: If key is present in the map, returns its value; if not,
+      executes factory, assigns its output to the key in map, and returns it.
+    </p>
+
+    <hr />
+
+    <h2>
+      Components
+    </h2>
+
+    <h3>
+      <code>m(Promiser, {promise}, promiseState => {})</code>
+    </h3>
+
+    <p>
+      Consumes a <code>Promise</code> and a view function; the view function is supplied with an object representing the
+      promise state:
+    </p>
+
+    <pre>
+pending  : boolean,
+settled  : boolean,
+rejected : undefined | boolean,
+resolved : undefined | boolean,
+value    : Any,
+error    : Any,
+</pre>
+
+    <p>
+      When the promise settles, a redraw is triggered. If &amp; when a new promise is supplied, the <code>pending</code>
+      &amp; <code>settled</code> flags are reset to reflect the new promise, while the remaining state properties persist.
+    </p>
+
+    <h3>
+      <code>m(Static, Live => m(Live, () => {}))</code>
+    </h3>
+
+    <p>
+      Consumes a view function, which receives a <code>Live</code> component &mdash; which consumes a view function. Virtual
+      DOM outwith the <code>Live</code> views will not recompute or redraw.
+    </p>
+
+    <h3>
+      <code>m(Inline, {view: () => {}})</code>
+    </h3>
+
+    <p>
+      Consumes a component declaration.
+    </p>
+
+    <p class=impressum>
+      &copy;2021 Barney Carroll
+    </p>
+
+    <decorations>
+      <decoration></decoration>
+      <decoration></decoration>
+      <decoration></decoration>
+      <decoration></decoration>
+      <decoration></decoration>
+      <decoration></decoration>
+    </decorations>
+  </body>
+</html>
