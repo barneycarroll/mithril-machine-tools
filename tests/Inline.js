@@ -1,4 +1,4 @@
-import Inline from '../src/Inline.mjs'
+import Inline from '../src/Inline.js'
 
 o.spec('Inline', () => {
   o.spec('Consumes and processes inline component declarations', () => {

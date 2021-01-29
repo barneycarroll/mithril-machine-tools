@@ -1,4 +1,4 @@
-import Mobile from '../src/Mobile.mjs'
+import Mobile from '../src/Mobile.js'
 
 o.spec('Mobile', () => {
   o.spec('API', () => {

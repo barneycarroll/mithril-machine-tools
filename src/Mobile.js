@@ -1,4 +1,4 @@
-import { domOf, viewOf } from './_utils.mjs'
+import {domOf, viewOf} from './_utils.js'
 
 export default function Mobile() {
   const creating = new Map

@@ -1,6 +1,6 @@
 // High-order Static component exposes low-order Live component.
 // Static is never recomputed, except for Live subtrees. 
-import {getSet, indexOf, viewOf} from './_utils.mjs'
+import {getSet, indexOf, viewOf} from './_utils.js'
 
 export default function Static(){
   const ranges = new Map

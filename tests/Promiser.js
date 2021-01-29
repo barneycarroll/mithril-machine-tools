@@ -1,4 +1,4 @@
-import Promiser from '../src/Promiser.mjs'
+import Promiser from '../src/Promiser.js'
 
 o.spec('Promiser', () => {
   o.spec('API', () => {

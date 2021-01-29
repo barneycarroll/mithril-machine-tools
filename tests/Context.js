@@ -1,4 +1,4 @@
-import createContext from '../src/Context.mjs'
+import createContext from '../src/Context.js'
 
 o.spec('Context', () => {
   o.spec('API', () => {

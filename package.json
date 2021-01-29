@@ -3,10 +3,10 @@
   "version": "1.0.0-rc.1",
   "description": "Low-level utility components for Mithril",
   "type": "module",
-  "main": "index.mjs",
+  "main": "index.js",
   "scripts": {
-    "test": "node ./tests.mjs",
-    "serve": "http-server -o /tests.html"
+    "test": "node ./tests.js",
+    "start": "http-server -o /tests.html"
   },
   "repository": {
     "type": "git",

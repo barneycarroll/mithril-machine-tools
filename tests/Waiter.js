@@ -1,5 +1,4 @@
-import Waiter from '../src/Waiter.mjs'
-import {getSet} from '../src/_utils.mjs'
+import Waiter from '../src/Waiter.js'
 
 o.spec('Waiter', () => {
   o.spec('API', () => {

@@ -7,11 +7,11 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "Tests",
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}/tests.mjs"
+      "program": "${workspaceFolder}/tests.js"
     }
   ]
 }

@@ -27,7 +27,7 @@ o.afterEach(() => {
 Promise.all(
   readdirSync('./tests')
     .filter(file =>
-      file.endsWith('.mjs')
+      file.endsWith('.js')
     )
     .map(file =>
       import('./tests/' + file) 

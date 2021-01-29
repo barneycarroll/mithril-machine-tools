@@ -4,7 +4,7 @@
     <meta charset=utf-8>
 
     <title>
-      Proponents test suite
+      Mithril Machine Tools test suite
     </title>
 
     <script src=./node_modules/mithril/mithril.js></script>
@@ -16,7 +16,7 @@
         font: 1em/1.5 sans-serif;
       }
       body::before {
-        content: 'Proponents test suite';
+        content: 'Mithril Machine Tools test suite';
         display: block;
         font-size: 2em;
         font-weight: bold;
@@ -41,11 +41,13 @@
           ['Waiter'],
         ]
         .map(module =>
-          import(`./tests/${ module }.mjs`)
+          import(`./tests/${ module }.js`)
         )
       )
         .then(() => {
           o.afterEach(() => {
+            document.body.innerHTML = ''
+
             delete document.body.vnodes
           })
 

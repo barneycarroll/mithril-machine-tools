@@ -1,4 +1,4 @@
-import Static from '../src/Static.mjs'
+import Static from '../src/Static.js'
 
 o.spec('Static', () => {
   o.spec('API', () => {
