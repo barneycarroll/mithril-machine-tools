@@ -2,28 +2,30 @@ import createContext from '../src/Context.mjs'
 
 o.spec('Context', () => {
   o.spec('API', () => {
-    var Context
-
     o('Exports a factory returning Provider and Receiver components', () => {
-      Context = createContext()
+      const {Provider, Receiver} = createContext()
 
       m.render(document.body, [
-        m(Context.Provider),
-        m(Context.Receiver),
+        m(Provider),
+        m(Receiver),
       ])
     })
 
     o('Provider component passes through children', () => {
+      const {Provider} = createContext()
+
       m.render(document.body,
-        m(Context.Provider, 'foo'),
+        m(Provider, 'foo'),
       )
 
       o(document.body.textContent).equals('foo')
     })
 
     o('Receiver component implements viewOf', () => {
+      const {Receiver} = createContext()
+
       m.render(document.body,
-        m(Context.Receiver, () => 'bar'),
+        m(Receiver, () => 'bar'),
       )
 
       o(document.body.textContent).equals('bar')
@@ -31,33 +33,62 @@ o.spec('Context', () => {
   })
 
   o('Attributes supplied to Provider are exposed to descendant Receiver', () => {
-    const contextIn = { foo: 'bar' }
+    const {Provider, Receiver} = createContext()
+
+    const contextIn = {foo: 'bar'}
 
     m.render(document.body,
-      m(Context.Provider, contextIn,
-        m(Context.Receiver, contextOut => {
-          o(contextOut).deepEquals(contextIn)
-          o(contextOut).notEquals( contextIn)
+      m(Provider, {value: contextIn},
+        m(Receiver, contextOut => {
+          o(contextOut).equals(contextIn)
         }),
       ),
     )
-
   })
 
   o('Lower order attributes override higher order', () => {
+    const {Provider, Receiver} = createContext()
+
     m.render(document.body,
-      m(Context.Provider, {
-        foo: 'bar',
-        fizz: 'buzz'
-      },
-        m(Context.Provider, {
-          foo: 'baz',
-        },
-          m(Context.Receiver, contextOut => {
-            o(contextOut).deepEquals({
-              foo: 'baz',
-              fizz: 'buzz',
-            })
+      m(Provider, {value: 'foo'},
+        m(Provider, {value: 'bar'},
+          m(Receiver, context => {
+            o(context).equals('bar')
+          }),
+        ),
+      ),
+    )
+  })
+
+  o('Factory can provide a default value', () => {
+    const {Provider, Receiver} = createContext('foo')
+    
+    m.render(document.body, [
+      m(Receiver, context => {
+        o(context).equals('foo')
+      }),
+
+      m(Provider, {value: 'bar'},
+        m(Receiver, context => {
+          o(context).equals('bar')
+        }),
+      ),
+    ])
+  })
+
+  o('Different contexts co-exist', () => {
+    const Context1 = createContext()
+    const Context2 = createContext()
+    
+    m.render(document.body,
+      m(Context1.Provider, {value: 'foo'},
+        m(Context2.Provider, {value: 'bar'},
+          m(Context1.Receiver, context => {
+            o(context).equals('foo')
+          }),
+
+          m(Context2.Receiver, context => {
+            o(context).equals('bar')
           }),
         ),
       ),
