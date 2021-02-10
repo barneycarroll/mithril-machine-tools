@@ -46,35 +46,117 @@ o.spec('Diff', () => {
                 o(signature[1].length).equals(2)
               })
 
-              const [
-                [currentVnode, previousVnode], 
-                [currentValue, previousValue]
-              ] = signature
-
               o('1st argument is 2 vnodes', () => {
-                [currentVnode, previousVnode].forEach(x => {
+                const [vnodes] = signature
+
+                vnodes.forEach(x => {
                   o(Object.keys(x)).deepEquals(Object.keys(m(Diff)))
                 })
 
-                let { tag, value } = currentVnode
+                let {tag, attrs: {value}} = vnodes[0]
 
-                o({ tag, value }).deepEquals({
-                  tag: Diff,
-                  value: 'value2',
+                o({tag, value}).deepEquals({
+                  tag   : Diff,
+                  value : 'value2',
                 })
                   `The present vnode`
 
-                ({ tag, value }) = previousVnode
+                void ({tag, attrs:{value}} = vnodes[1])
 
-                o({ tag, value }).deepEquals({
-                  tag: Diff,
-                  value: 'value1',
+                o({tag, value}).deepEquals({
+                  tag   : Diff,
+                  value : 'value1',
                 })
                   `And the previous`
+              })
+
+              o('2nd argument is current & previous `value` attributes', () => {
+                const values = signature[1]
+                
+                o(values).deepEquals([
+                  'value2',
+                  'value1',
+                ])
               })
             })
           })
         })
+      })
+
+      o.spec('When `value` does not change', () => {
+        const [before, view, after] = [o.spy(), o.spy(), o.spy()]
+
+        m.render(document.body, 
+          m(Diff, {
+            value: 'value2',
+            before,
+            view,
+            after,
+          })
+        )
+
+        o('`before` is not called', () => {
+          o(before.callCount).equals(0)
+        })
+
+        o('`after` is not called', () => {
+          o(after.callCount).equals(0)
+        })
+
+        o('`view` is called & retains signature', () => {
+          o(view.callCount).equals(1)
+
+          const [vnodes, values] = view.calls[0].args
+
+          vnodes.forEach(vnode => {
+            const {tag, attrs: {value}} = vnode
+
+            o({tag, value}).deepEquals({
+              tag   : Diff,
+              value : 'value2',
+            })
+          })
+
+          o(values).deepEquals(['value2', 'value2'])
+        })
+      })
+    })
+
+    o('Optional `initial` property, if true, counts initial draw as representing a diff', () => {
+      const [before, after] = [o.spy(), o.spy()]
+
+      m.render(document.body,
+        m(Diff, {
+          initial: true,
+          value: 'value',
+          before,
+          after,
+        })
+      )
+
+      void [before, after].forEach(spy => {
+        o(spy.callCount).equals(1)
+
+        const [vnodes, values] = spy.calls[0].args
+
+        o(vnodes[1]).equals(undefined)
+        o(values[1]).equals(undefined)
+      })
+    })
+
+    o('If no `value` is provided, each method runs on every draw', () => {
+      const [before, view, after] = [o.spy(), o.spy(), o.spy()]
+
+      m.render(document.body, 
+        m(Diff, {before, view, after})
+      )
+
+      m.render(document.body, 
+        m(Diff, {before, view, after})
+      )
+
+      void [before, view, after].forEach(method => {
+        o(method.callCount).equals(2)
       })
     })
   })

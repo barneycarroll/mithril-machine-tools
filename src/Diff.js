@@ -8,12 +8,12 @@ export default function Diff(now){
       call(viewOf(now)),
 
     oninit: () => {
-      if(now.attrs.init)
+      if(now.attrs.initial || !('value' in now.attrs))
         call(now.attrs.before)
     },
 
     oncreate: () => {
-      if(now.attrs.init)
+      if(now.attrs.initial || !('value' in now.attrs))
         call(now.attrs.after)
 
       then = now
@@ -22,12 +22,12 @@ export default function Diff(now){
     onbeforeupdate: v => {
       now = v
 
-      if(diff())
+      if(!('value' in now.attrs) || diff())
         call(now.attrs.before)
     },
 
     onupdate: () => {
-      if(diff())
+      if(!('value' in now.attrs) || diff())
         call(now.attrs.after)
       
       then = now
