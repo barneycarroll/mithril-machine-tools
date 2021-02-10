@@ -34,6 +34,7 @@
     "ospec": "4.1.1"
   },
   "dependencies": {
+    "domino": "2.1.6",
     "linkedom": "0.4.5"
   }
 }

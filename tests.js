@@ -1,11 +1,11 @@
 import {createRequire} from 'module'
 import {readdirSync}   from 'fs'
 
-import {parseHTML} from 'linkedom'
-
 const require = createRequire(import.meta.url)
 
-const dom = parseHTML(`
+const {createWindow} = require('domino')
+
+const dom = createWindow(`
 <!doctype html>
 <html lang="en">
   <head>
