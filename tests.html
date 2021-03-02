@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html id=tests>
   <head>
     <meta charset=utf-8>
 
@@ -9,23 +9,8 @@
 
     <script src=./node_modules/mithril/mithril.js></script>
     <script src=./node_modules/mithril/ospec/ospec.js></script>
-
-    <style>
-      body {
-        margin: 1em;
-        font: 1em/1.5 sans-serif;
-      }
-      body::before {
-        content: 'Mithril Machine Tools test suite';
-        display: block;
-        font-size: 2em;
-        font-weight: bold;
-      }
-      body::after {
-        content: 'Open console for results; click to re-run.';
-        display: block;
-      }
-    </style>
+    
+    <link rel=stylesheet href=./docs/style.css />
   </head>
 
   <body>
@@ -33,7 +18,7 @@
       Promise.all(
         [
           ['_utils'],
-          ['Context'],
+          ['createContext'],
           ['Inline'],
           ['Mobile'],
           ['Promiser'],

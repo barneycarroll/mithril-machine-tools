@@ -1,6 +1,3 @@
-// High-order component Waiter exposes low-order component Service.
-// Waiters onbeforeremove triggers all Services immediate childrens
-// onbeforemove and resolves with the last of them.
 import {viewOf} from './_utils.js'
 
 export default v => {

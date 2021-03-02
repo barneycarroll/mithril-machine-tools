@@ -1,8 +1,4 @@
-// Consumes a {promise} attribute and a view.
-// The view is provided with the promises state representation:
-// {pending, settled, rejected, resolved, value, error}
-// A redraw is triggered when the promise settles.
-import {viewOf} from './_utils.js'
+import {viewOf, Redraw} from './_utils.js'
 
 export default function Promiser(){
   const state = {
@@ -13,6 +9,7 @@ export default function Promiser(){
   }
 
   let drawing
+  let redraw
 
   return {
     view: v => {
@@ -22,7 +19,11 @@ export default function Promiser(){
         drawing = false
       })
 
-      return viewOf(v)({...state})
+      return [
+        viewOf(v)({...state}),
+
+        m(Redraw, x => {redraw = x}),
+      ]
     },
 
     onbeforeupdate: (now, then) => {
@@ -51,7 +52,7 @@ export default function Promiser(){
         if(drawing) 
           await Promise.resolve()
 
-        m.redraw()
+        void (redraw || Function.prototype)()
       }
     },
   }

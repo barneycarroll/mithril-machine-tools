@@ -51,6 +51,18 @@ export function viewOf(v) {
   return Object.assign(
     view,
 
-    { tag: view },
+    {tag: {view}},
   )
+}
+
+// Extract the redraw event from the tree context
+export const Redraw = {
+  view: () => 
+    m('noop', {
+      on:{},
+  
+      oncreate: v => {
+        void (v.children[0] || Function.prototype)(v.events._)
+      },
+    }),
 }

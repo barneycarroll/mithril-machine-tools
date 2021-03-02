@@ -27,7 +27,7 @@ export default function Static(){
   function Live(){
     return {
       view: v =>
-        viewOf(v)(),
+        [viewOf(v)(), ''],
       
       oncreate: v => {
         const parent = v.dom.parentNode
