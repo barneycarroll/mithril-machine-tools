@@ -181,7 +181,7 @@ import {Waiter} from 'mithril-machine-tools'
 m.route(document.body, '/page/1', {
   '/page/:index': {
     render: ({attrs: {index}}) =>
-      // Because page index is bound to keu,
+      // Because page index is bound to key,
       // Waiter is removed & reinitialised for each page 
       m(Waiter, {
         key: index
@@ -260,7 +260,7 @@ m.mount(document.body, {
 Retrieves an array of DOM nodes contained by a virtual node.
 
 ```js
-import {indexOf} from 'mithril-machine-tools'
+import {domOf} from 'mithril-machine-tools'
 
 m.mount(document.body, {
   view: () =>
@@ -280,7 +280,7 @@ m.mount(document.body, {
 
 ### getSet
 
-Unlike the other exports, `getSet` doesn't interface directly with Mithril; what it does is follow the same [uniform access principle](http://lhorie.github.io/mithril-blog/the-uniform-access-principle.html) that hyperscript / virtual DOM brings to components & applies it to [Maps](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map). This enables using maps as a data structure which can be queried in such a way that access code does not need to conditionally fork for whether a value associated with any given key needs to be created, or merely retrieved — which can be extremely useful in writing expressive queries that work with the grain of Mithril applications. This is used in the `Static` module [to determine the rendering context of `Live` components](https://github.com/barneycarroll/mithril-machine-tools/blob/base/src/Static.js#L35).
+`getSet` follow the [uniform access principle](http://lhorie.github.io/mithril-blog/the-uniform-access-principle.html) of virtual DOM & applies it to [Maps](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map). This enables the use of maps as a data structure which can be queried such that access code does not need to conditionally fork for whether a value associated with any given key needs to be created, or merely retrieved — which can be extremely useful in writing expressive queries that work with the grain of Mithril applications. This is used in the `Static` module [to determine the rendering context of `Live` components](https://github.com/barneycarroll/mithril-machine-tools/blob/base/src/Static.js#L35).
 
 ```js
 import {getSet, Promiser} from 'mithril-machine-tools'
