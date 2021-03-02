@@ -2,6 +2,8 @@
 
 Putting the hype back in hyperscript, the OM back in virtual DOM; A bag of tricks for [Mithril](https://mithril.js.org).
 
+Components are a popular mainstream abstraction, but the true power of component composition is largely unexplored. Mithril Machine Tools is a pragmatic demonstration of what is possible with components that seek to expose — rather than enclose — the power of Mithrils hyperscript & virtual DOM interfaces. Use these tools as aids in application design, or as conceptual aids in building your own abstractions!
+
 ```js
 import {
   // 👇 Components
@@ -58,7 +60,7 @@ function Reader(){
 The `Inline` component takes a component expression as its input: This allows you to describe stateful behaviour inline in the virtual DOM tree itself, affording all the benefits of localised isolation without the restrictive indirection.
 
 ```js
-import {Inline}
+import {Inline} from 'mithril-machine-tools'
 
 m.mount(document.body, function A(){
   let a = 0
@@ -205,3 +207,73 @@ m.route(document.body, '/page/1', {
 })
 ```
 
+## Utilities
+
+### viewOf
+
+`viewOf` is used by nearly all of the MMT components. It enables a component interface that accepts a view function as input, instead of pre-compiled virtual DOM nodes. This allows you to write components which seek to expose special values to the view at call site, or control its execution context.
+
+```js
+import {viewOf} from 'mithril-machine-tools'
+
+function Timestamp(){
+  const timestamp = new Date()
+  
+  return {
+    view: v =>
+      viewOf(v)(timestamp)
+  }
+}
+
+m.mount(document.body, {
+  view: () =>
+    m(Timestamp, time =>
+      m('p', time.toLocaleTimeString()),
+    ),
+}
+```
+
+### indexOf
+
+Retrieves the index of the supplied nodes position within its parent nodes list of immediate child nodes.
+
+```js
+import {indexOf} from 'mithril-machine-tools'
+
+m.mount(document.body, {
+  view: () => 
+    m('.Page',
+      m('h1', 'Hello'),
+      
+      m('p', {
+        oncreate : v => {
+          v.dom.textContent =
+            `I'm child number ${ indexOf(v.dom) }!`
+        },
+      }),
+    ),
+}
+```
+
+### domOf
+
+Retrieves an array of DOM nodes contained by a virtual node.
+
+```js
+import {indexOf} from 'mithril-machine-tools'
+
+m.mount(document.body, {
+  view: () =>
+    m('h1', {
+      oncreate: v => {
+        console.assert(
+          domOf(v).length === 3
+          &&
+          domOf(v)[0].nodeValue === 'Hello'
+        )
+      },
+    }, 
+      'Hello', ' ', 'you',
+    ),
+})
+```
