@@ -47,8 +47,8 @@ function Layout(){
 function Reader(){
   return {
     view : () =>
-      // Receiver retrieves the value set by its virtual DOM ancestry
-      m(Receiver, value =>
+      // Consumer retrieves the value set by its virtual DOM ancestry
+      m(Consumer, value =>
         m('code', 'value === state :', value === state), 
       ),
   }
