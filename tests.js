@@ -1,11 +1,20 @@
 import {createRequire} from 'module'
 import {readdirSync}   from 'fs'
 
+import {parseHTML} from 'linkedom'
+
 const require = createRequire(import.meta.url)
 
-const { JSDOM } = require('jsdom')
-
-const dom = new JSDOM('', { pretendToBeVisual: true })
+const dom = parseHTML(`
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Mithril Machine Tools</title>
+  </head>
+  <body>
+  </body>
+</html>
+`)
 
 Object.assign(global, {
   window               : dom.window,

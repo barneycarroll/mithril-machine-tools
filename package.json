@@ -1,12 +1,12 @@
 {
   "name": "mithril-machine-tools",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.5",
   "description": "Low-level utility components for Mithril",
   "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "node ./tests.js",
-    "start": "http-server -o /tests.html"
+    "start": "http-server -o ./"
   },
   "repository": {
     "type": "git",
@@ -32,5 +32,8 @@
     "jsdom": "16.4.0",
     "mithril": "2.0.4",
     "ospec": "4.1.1"
+  },
+  "dependencies": {
+    "linkedom": "0.4.5"
   }
 }
