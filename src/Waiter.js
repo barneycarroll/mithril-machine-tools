@@ -1,40 +1,61 @@
 import {viewOf} from './_utils.js'
 
 export default v => {
-  const customers = []
-  
-  return {
-    view: v => 
-      viewOf(v)(Service),
-      
-    onupdate: () => {
-      customers.length = 0
-    },
+  let previous
+  let current
+  let frozen
 
-    onbeforeremove: () => {
-      const services = 
-        customers.flatMap(v =>
-          [v.state, v.attrs].flatMap(x =>
-            x && x.onbeforeremove ? x.onbeforeremove.call(v.state, v) : []
-          )
-        )
-      
-      if(services.length)
-        return Promise.all(services)
-    },
+  return {view, onbeforeremove}
+
+  function view(){
+    v = arguments[0]
+
+    if(frozen)
+      return v.instance
+
+    previous = new Map(current)
+    current  = new Map
+
+    const output = viewOf(v)(function service({key}, ...children){
+      current.set(key, children)
+    })
+
+    const missing = Array.from(previous).flatMap(([key, children]) => current.has(key) ? [] : children)
+
+    if(!missing.length)
+      return output
+
+    frozen = true
+
+    const departures = missing.flatMap(removals)
+
+    void async function(){
+      const snapshot = v
+
+      await Promise.all(departures)
+
+      const {parentNode} = v.dom
+      const {vnodes} = parentNode
+
+      parentNode.vnodes = [snapshot]
+
+      m.render(parentNode, [{...v}])
+
+      frozen = false
+    }()
+
+    return v.instance
   }
 
-  function Service(){
-    return {
-      view: v =>
-        v.children,
-
-      oncreate: greet,
-      onupdate: greet,
-    }
+  function onbeforeremove(){
+    return Promise.all(
+      Array.from(current.values()).flat().flatMap(removals)
+    )
   }
+}
 
-  function greet(v){
-    customers.push(...v.children)
-  }
+function removals(v){
+  return [v.state, v.attrs].flatMap(x =>
+    x && x.onbeforeremove ? x.onbeforeremove.call(v.state, v) : []
+  )
 }
