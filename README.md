@@ -216,7 +216,7 @@ m.route(document.body, '/page/1', {
 
 .Page.exit    .Menu {
   animation: slideIn 600ms ease-in-out reverse;
-  /*                 ☝😲
+  /*                 👆😲
    * There is no à priori requirement to synchronise effects:
    * Liminal detects all effects triggered by class application
    * and ensures they have all resolved before proceeding.
