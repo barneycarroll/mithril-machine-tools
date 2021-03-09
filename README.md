@@ -209,12 +209,18 @@ m.route(document.body, '/page/1', {
   opacity: 1;
 }
 
+/* CSS selectors can qualify effects based on ancestry */
 .Page.present .Menu {
   animation: slideIn 600ms ease-in-out;
 }
 
 .Page.exit    .Menu {
   animation: slideIn 600ms ease-in-out reverse;
+  /*                 ☝😲
+   * There is no à priori requirement to synchronise effects:
+   * Liminal detects all effects triggered by class application
+   * and ensures they have all resolved before proceeding.
+   */
 }
 
 @keyframes slideIn {
