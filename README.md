@@ -134,7 +134,7 @@ m.mount(document.body, function Search(){
 
         !request 
       ? 
-        m('p', '☝ Use the field above to search!')
+        m('p', '👆 Use the field above to search!')
       :
         m(Promiser, {promise: request},
           ({value, pending, resolved}) => [
@@ -150,7 +150,7 @@ m.mount(document.body, function Search(){
 
 ### Static
 
-`Static` allows you to mark a section of view whose *immediate* contents have no dynamic elements, & consequently never recomputes; it also exposes a `Live` component which can be used to opt back in to computation lower down the tree. This can be useful to distinguish between voluminous UI whose purpose is purely structural & cosmetic, & stateful, dynamic UI within it.
+`Static` allows you to mark a section of view that has no dynamic requirement, & consequently never needs to recompute; it exposes a `Live` component which is used to opt back in to computation lower down the tree. This can be useful to distinguish between voluminous UI whose purpose is purely structural & cosmetic, & stateful, dynamic UI within it.
 
 ```js
 import {Static} from 'mithril-machine-tools'
@@ -171,40 +171,78 @@ m.mount(document.body, {
 })
 ```
 
-### Waiter
+### Liminal
 
-In Mithril, the logical removal of a node from the view tree can defer the corresponding DOMs removal by using the `onbeforeremove` lifecycle hook — with the caveat that [this hook is only called on the DOM element that loses its `parentNode`, *but it does not get called in its child elements*](https://mithril.js.org/lifecycle-methods.html#onbeforeremove). `Waiter` allows us to get around this stipulation: Place the `Waiter` at the point of logical removal, then wrap its `Service` component around the nodes whose `onbeforeremove` hooks you want to defer DOM removal.
+`Liminal` is an effects component which applies CSS classes to the underlying DOM to reflect lifecycle, listens for any CSS transitions or animations triggered by the application of these classes, and defers removal until these effects have resolved. The component accepts any of the attributes `{entry, exit, absent, present}` to determine what classes to apply, and an optional `blocking` attribute which if true, ensures that entry effects complete before exit effects are triggered. `Liminal` must have a singular element child.
 
 ```js
-import {Waiter} from 'mithril-machine-tools'
+import {Liminal} from 'mithril-machine-tools'
 
 m.route(document.body, '/page/1', {
   '/page/:index': {
     render: ({attrs: {index}}) =>
-      // Because page index is bound to key,
-      // Waiter is removed & reinitialised for each page 
-      m(Waiter, {
-        key: index
-      }, Service =>
-        m(Service, 
-          m(Menu, {
-            oncreate: slideIn, 
-            onbeforeremove: slideOut,
-          }),
+      m(Liminal, {
+        key: index,
+        entry  : 'entry'  ,
+        exit   : 'exit'   ,
+        absent : 'absent' ,
+        present: 'present',
+      },
+        m('.Page', 
+          m('.Menu'),
         ),
-
-        m(Page, {index}),
-
-        modal &&
-          m(Service,
-            m(Modal, {
-              oncreate: zoomIn, 
-              onbeforeremove: zoomOut,
-            }, modal.contents),
-          ),
       ),
-  }
+  },
 })
+```
+
+```css
+.Page {
+  transition: opacity 400ms ease-in-out;
+}
+
+.Page.absent {
+  opacity: 0;
+}
+
+.Page.present {
+  opacity: 1;
+}
+
+/* CSS selectors can qualify effects based on ancestry */
+.Page.present .Menu {
+  animation: slideIn 600ms ease-in-out;
+}
+
+.Page.exit    .Menu {
+  animation: slideIn 600ms ease-in-out reverse;
+  /*                 👆😲
+   * There is no à priori requirement to synchronise effects:
+   * Liminal detects all effects triggered by class application
+   * and ensures they have all resolved before proceeding.
+   */
+}
+
+@keyframes slideIn {
+  from {transform: translateX(-100%)}
+  to   {transform: translateX(   0%)}
+}
+```
+
+If you wish to establish an app-wide convention of `Liminal` configuration, the component can be partially applied by invoking it as function with configuration input:
+
+```js
+import {Liminal} from 'mithril-machine-tools'
+
+const Animated = Liminal({
+  entry    : 'entry'  ,
+  exit     : 'exit'   ,
+  absent   : 'absent' ,
+  present  : 'present',
+  blocking : true,
+})
+
+m(Animated, m('.element'))
 ```
 
 ## Utilities
@@ -231,6 +269,24 @@ m.mount(document.body, {
       m('p', time.toLocaleTimeString()),
     ),
 }
+```
+
+### reflow
+
+Used when a script requires all pending DOM mutations to persist and have their effects persist to screen before proceeding, `reflow` returns a promise that internally queries document body dimensions to trigger reflow. Multiple `reflow` calls in the same tick will return the same promise, allowing queries to be batched for a minimum of DOM-thrashing. `reflow` is particularly useful in `oncreate` hooks to ensure transitions caused by temporary CSS application are not optimised away by DOM mutation batching.
+
+```js
+import {reflow} from 'mithril-machine-tools'
+
+m('div', {
+  async oncreate({dom}){
+    dom.classList.add('initial-state')
+    
+    await reflow() // 👈 without reflow, `initial-state` risks never being applied
+
+    dom.classList.remove('initial-state')
+  }
+})
 ```
 
 ### indexOf
@@ -310,4 +366,36 @@ m.route(document.body, '/user/barney', {
       ),
   },
 })
+```
+
+### Table
+
+`Table` behaves like a set whose contents are identified not by equality but by comparing a set of properties, which must be supplied to the table at initialisation.
+
+```js
+import Table from 'mithril-machine-tools'
+
+const users = new Table(['username', 'email'])
+
+table.add({
+  username: 'Barney', 
+  email: 'barney.carroll@gmail.com',
+  age: 35,
+})
+
+table.add({
+  username: 'Barney',
+  email: 'barney.carroll@gmail.com',
+  age: 42,
+})
+
+console.assert(table.size === 1)
+
+console.assert(
+  table.get({
+    username: 'Barney',
+    email: 'barney.carroll@gmail.com',
+  })
+    .age === 35
+)
 ```

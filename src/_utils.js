@@ -55,7 +55,7 @@ export function viewOf(v) {
   )
 }
 
-// Extract the redraw event from the tree context
+// Extract the view redraw callback - if bound - from the tree context
 export const Redraw = {
   view: () => 
     m('noop', {
@@ -65,4 +65,58 @@ export const Redraw = {
         void (v.children[0] || Function.prototype)(v.events._)
       },
     }),
+}
+
+let promise = false
+
+// Forcibly persist DOM mutations and repaint in the next tick
+export const reflow = () =>
+  promise ||= new Promise(done => {
+    requestAnimationFrame(() => {
+      void document.body.clientHeight
+
+      promise = false
+
+      done()
+    })
+  }) 
+
+// A set-like data structure which identifies objects by matching a set of fields  
+export class Table {
+  constructor(fields) {
+    this._is = a => b =>
+      fields.every(field => a[field] === b[field])
+  }
+
+  _entries = []
+
+  get size() {
+    return this._entries.length
+  }
+
+  has = query =>
+    this._entries.some(this._is(query))
+
+  get = query =>
+    this._entries.find(this._is(query))
+
+  add = entry => {
+    if (this.has(entry))
+      return false
+
+    this._entries.push(entry)
+
+    return true
+  }
+
+  delete = query => {
+    const index = this._entries.findIndex(this._is(query))
+
+    if (index === -1)
+      return false
+
+    this._entries.splice(index, 1)
+
+    return true
+  }
 }
