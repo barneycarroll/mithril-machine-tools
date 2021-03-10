@@ -29,11 +29,8 @@
   },
   "devDependencies": {
     "http-server": "0.12.3",
-    "jsdom": "16.4.0",
+    "linkedom": "0.5.5",
     "mithril": "2.0.4",
     "ospec": "4.1.1"
-  },
-  "dependencies": {
-    "linkedom": "0.4.5"
   }
 }
