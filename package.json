@@ -1,7 +1,7 @@
 {
   "name": "mithril-machine-tools",
-  "version": "1.0.0-rc.5",
-  "description": "Low-level utility components for Mithril",
+  "version": "1.0.0-rc.6",
+  "description": "A bag of tricks for for Mithril",
   "type": "module",
   "main": "index.js",
   "scripts": {
