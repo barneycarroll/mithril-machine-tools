@@ -71,7 +71,7 @@ let promise = false
 
 // Forcibly persist DOM mutations and repaint in the next tick
 export const reflow = () =>
-  promise ||= new Promise(done => {
+  promise || (promise = new Promise(done => {
     requestAnimationFrame(() => {
       void document.body.clientHeight
 
@@ -79,7 +79,7 @@ export const reflow = () =>
 
       done()
     })
-  }) 
+  }))
 
 // A set-like data structure which identifies objects by matching a set of fields  
 export class Table {
