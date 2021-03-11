@@ -22,12 +22,12 @@ export default function Liminal(v){
     .map(x => x.flat())
 
   if(v.attrs)
-    return Liminal()
+    return Liminal(v)
   
   else
     return Liminal
   
-  function Liminal(){
+  function Liminal(v){
     const registry = new Set
 
     let entryFx
