@@ -86,9 +86,9 @@ export class Table {
   constructor(fields) {
     this._is = a => b =>
       fields.every(field => a[field] === b[field])
-  }
 
-  _entries = []
+    this._entries = []
+  }
 
   get size() {
     return this._entries.length
