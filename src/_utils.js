@@ -82,41 +82,41 @@ export const reflow = () =>
   }))
 
 // A set-like data structure which identifies objects by matching a set of fields  
-export class Table {
-  constructor(fields) {
-    this._is = a => b =>
-      fields.every(field => a[field] === b[field])
+export function Table(fields){
+  const is = a => b =>
+    fields.every(field => a[field] === b[field])
 
-    this._entries = []
-  }
+  const entries = []
 
-  get size() {
-    return this._entries.length
-  }
+  return {
+    get size() {
+      return entries.length
+    },
 
-  has = query =>
-    this._entries.some(this._is(query))
+    has : query =>
+      entries.some(is(query)),
 
-  get = query =>
-    this._entries.find(this._is(query))
+    get : query =>
+      entries.find(is(query)),
 
-  add = entry => {
-    if (this.has(entry))
-      return false
+    add : entry => {
+      if(entries.some(is(entry)))
+        return false
 
-    this._entries.push(entry)
+      entries.push(entry)
 
-    return true
-  }
+      return true
+    },
 
-  delete = query => {
-    const index = this._entries.findIndex(this._is(query))
+    delete : query => {
+      const index = entries.findIndex(is(query))
 
-    if (index === -1)
-      return false
+      if (index === -1)
+        return false
 
-    this._entries.splice(index, 1)
+      entries.splice(index, 1)
 
-    return true
+      return true
+    },
   }
 }
