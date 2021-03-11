@@ -17,7 +17,9 @@ export default function Liminal(v){
     [absent, entry], 
     [present],       
     [absent, exit],  
-  ].map(x => x.filter(Boolean))
+  ]
+    .map(x => x.filter(Boolean))
+    .map(x => x.flat())
 
   if(v.attrs)
     return Liminal()
@@ -39,19 +41,19 @@ export default function Liminal(v){
       onbeforeremove,
     }
 
-    async function oncreate({ dom }){
+    async function oncreate({dom}){
       entryFx = fxBatch()
 
-      dom.classList.add(...stages[0])
+      dom.classList.add(   ...stages[0])
 
       await reflow()
 
       dom.classList.remove(...stages[0])
-      dom.classList.add(...stages[1])
+      dom.classList.add(   ...stages[1])
     }
 
-    async function onbeforeremove({ dom }) {
-      if (blocking)
+    async function onbeforeremove({dom}) {
+      if(blocking)
         await entryFx
 
       await frame()
@@ -59,7 +61,7 @@ export default function Liminal(v){
       exitFx = fxBatch()
 
       dom.classList.remove(...stages[1])
-      dom.classList.add(...stages[2])
+      dom.classList.add(   ...stages[2])
 
       await Promise.all([entryFx, exitFx])
     }
@@ -75,13 +77,13 @@ export default function Liminal(v){
         frame().then(frame).then(tally)
 
         function handler(event) {
-          if (registry.has(event))
+          if(registry.has(event))
             return
 
           else
             registry.add(event)
 
-          if (start.includes(event.type))
+          if(start.includes(event.type))
             stack.add(event)
 
           else {
@@ -92,7 +94,7 @@ export default function Liminal(v){
         }
 
         function tally() {
-          if (stack.size > 0)
+          if(stack.size > 0)
             return
 
           events.forEach(type => {
