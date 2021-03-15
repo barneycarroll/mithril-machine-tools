@@ -1,6 +1,6 @@
 {
   "name": "mithril-machine-tools",
-  "version": "1.0.0-rc.10",
+  "version": "1.0.0-rc.11",
   "description": "A bag of tricks for for Mithril",
   "type": "module",
   "main": "index.js",

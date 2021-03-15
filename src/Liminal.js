@@ -105,7 +105,7 @@ export default function Liminal(v){
             registry.add(event)
           
           // Discard infinite animations
-          if(getComputedStyle(event.target, event.pseudoElement).animationIterationCount)
+          if('infinite' == getComputedStyle(event.target, event.pseudoElement).animationIterationCount)
             return
 
           // Stack start events 
@@ -120,7 +120,7 @@ export default function Liminal(v){
           }
         }
 
-        function tally() {
+        function tally(){
           if(stack.size > 0)
             return
 
