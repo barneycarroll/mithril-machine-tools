@@ -11,27 +11,35 @@ const events  = [...start,  ...settled]
 const fxStack = () => new Table(['target', 'propertyName', 'animationName'])
 
 export default function Liminal(v){
-  const {blocking, absent, present, entry, exit} = v.attrs || v
+  const {blocking, base, absent, present, entry, exit} = v.attrs || v
   
+  // Input class lists
   const stages = [
-    [absent, entry], 
-    [present],       
-    [absent, exit],  
+    [base],          // Persistent throughout lifecycle
+    [absent, entry], // Applied for the initial frame
+    [present],       // after initial frame, until teardown
+    [absent, exit],  // at teardown
   ]
-    .map(x => x.filter(Boolean))
-    .map(x => x.flat())
-
-  if(v.attrs)
-    return Liminal(v)
+    .map(x => 
+      x
+        .filter(Boolean)
+        // Allow classes to be supplied as arrays or space-separated strings
+        .flatMap(x => Array.isArray(x) ? x : x.split(' '))
+    )
   
-  else
-    return Liminal
+  // Allow partially applied component definition
+  return (
+    v.attrs
+      ? Liminal(v)
+      : Liminal
+  )
   
   function Liminal(v){
-    const registry = new Set
+    let entryFx // Promise tallying initial 
+    let exitFx  // and terminal start / end events
 
-    let entryFx
-    let exitFx
+    // Events registered by one tally should be discarded by the other 
+    const registry = new Set
 
     return {
       view: v =>
@@ -42,50 +50,69 @@ export default function Liminal(v){
     }
 
     async function oncreate({dom}){
-      entryFx = fxBatch()
+      // Prevent element from transitioning as result of 
+      // higher order reflows during first frame application
+      const {transition} = dom.style
+      dom.style.transition = 'none'
+
+      entryFx = fxBatch(dom)
 
       dom.classList.add(   ...stages[0])
+      dom.classList.add(   ...stages[1])
 
+      // Force initial state rendering
       await reflow()
 
-      dom.classList.remove(...stages[0])
-      dom.classList.add(   ...stages[1])
+      // Reinstate any locally applied transition
+      dom.style.transition = transition
+
+      dom.classList.remove(...stages[1])
+      dom.classList.add(   ...stages[2])
     }
 
-    async function onbeforeremove({dom}) {
+    async function onbeforeremove({dom}){
       if(blocking)
         await entryFx
 
       await frame()
 
-      exitFx = fxBatch()
+      exitFx = fxBatch(dom)
 
-      dom.classList.remove(...stages[1])
-      dom.classList.add(   ...stages[2])
+      dom.classList.remove(...stages[2])
+      dom.classList.add(   ...stages[3])
 
       await Promise.all([entryFx, exitFx])
     }
 
-    function fxBatch() {
+    function fxBatch(dom){
       const stack = fxStack()
 
       return new Promise(resolve => {
         events.forEach(type => {
-          v.dom.addEventListener(type, handler)
+          dom.addEventListener(type, handler)
         })
 
+        // One frame to cater for reflow,
+        // another to allow for DOM event queue
         frame().then(frame).then(tally)
 
-        function handler(event) {
+        function handler(event){
+          // Prevent entry events from tallying as part of exit 
           if(registry.has(event))
             return
 
           else
             registry.add(event)
+          
+          // Discard infinite animations
+          if(getComputedStyle(event.target, event.pseudoElement).animationIterationCount)
+            return
 
+          // Stack start events 
           if(start.includes(event.type))
             stack.add(event)
 
+          // Unstack end events
           else {
             stack.delete(event)
 
@@ -98,7 +125,7 @@ export default function Liminal(v){
             return
 
           events.forEach(type => {
-            v.dom.removeEventListener(type, handler)
+            dom.removeEventListener(type, handler)
           })
 
           resolve()
