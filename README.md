@@ -7,7 +7,7 @@ Components are a popular mainstream abstraction, but the true power of component
 ```js
 import {
   // 👇 Components
-  createContext, Inline, Mobile, Promiser, Static, Waiter,
+  createContext, Inline, Liminal, Mobile, Promiser, Static,
 
   viewOf, indexOf, domOf, getSet,
   // 👆 Utilities
@@ -173,7 +173,7 @@ m.mount(document.body, {
 
 ### Liminal
 
-`Liminal` is an effects component which applies CSS classes to the underlying DOM to reflect lifecycle, listens for any CSS transitions or animations triggered by the application of these classes, and defers removal until these effects have resolved. The component accepts any of the attributes `{entry, exit, absent, present}` to determine what classes to apply, and an optional `blocking` attribute which if true, ensures that entry effects complete before exit effects are triggered. `Liminal` must have a singular element child.
+`Liminal` is an effects component which applies CSS classes to the underlying DOM to reflect lifecycle, listens for any CSS transitions or animations triggered by the application of these classes, and defers removal until these effects have resolved. The component accepts any of the attributes `{base, entry, exit, absent, present}` to determine what classes to apply, and an optional `blocking` attribute which if true, ensures that entry effects complete before exit effects are triggered; the class properties can be space-separated strings containing multiple classes. `Liminal` must have a singular element child.
 
 ```js
 import {Liminal} from 'mithril-machine-tools'
@@ -183,9 +183,10 @@ m.route(document.body, '/page/1', {
     render: ({attrs: {index}}) =>
       m(Liminal, {
         key: index,
-        entry  : 'entry'  ,
-        exit   : 'exit'   ,
-        absent : 'absent' ,
+        base   : 'base',
+        entry  : 'entry',
+        exit   : 'exit',
+        absent : 'absent',
         present: 'present',
       },
         m('.Page', 
@@ -197,7 +198,7 @@ m.route(document.body, '/page/1', {
 ```
 
 ```css
-.Page {
+.Page.base {
   transition: opacity 400ms ease-in-out;
 }
 
@@ -235,9 +236,10 @@ If you wish to establish an app-wide convention of `Liminal` configuration, the 
 import {Liminal} from 'mithril-machine-tools'
 
 const Animated = Liminal({
-  entry    : 'entry'  ,
-  exit     : 'exit'   ,
-  absent   : 'absent' ,
+  base     : 'base',
+  entry    : 'entry',
+  exit     : 'exit',
+  absent   : 'absent',
   present  : 'present',
   blocking : true,
 })
