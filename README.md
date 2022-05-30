@@ -7,7 +7,7 @@ Components are a popular mainstream abstraction, but the true power of component
 ```js
 import {
   // 👇 Components
-  createContext, Inline, Liminal, Mobile, Promiser, Static,
+  createContext, Inline, Liminal, Mobile, Promiser, Shadow, Static,
 
   viewOf, indexOf, domOf, getSet,
   // 👆 Utilities
@@ -145,6 +145,44 @@ m.mount(document.body, function Search(){
         ),
     ],
   }
+})
+```
+
+### Shadow
+
+`Shadow` creates a DOM node in the current tree (by default, a `div` with a style of `display: contents`), attaches an open shadow root to it, and renders any supplied children to its [shadow DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM) tree. Significantly, this enables style encapsulation at will.
+
+An optional `selector` attribute allows you to provide a string to define the host element; any other supplied attributes are passed on to this element.
+
+If a [view function](#viewOf) is supplied to a `Shadow` component, it will in turn be supplied with a `Slot` component: this can be used as an escape hatch from the shadow DOM — content injected into slots will assume the styles of the higher order context and ignore those defined in the shadow DOM; by default, `Slot`s are given `{name}` attributes automatically, but these can be specified if preferred; like the `Shadow` host element, `Slot`s will by default render into a `div` with a style of `display: contents` — you can override this behaviour with the `selector` attribute.
+
+```js
+import {Shadow} from'mithril-machine-tools'
+
+m.mount(document.body, {
+  view: () => [
+    m('style', `
+      .red {
+        color: red
+      }
+    `),
+
+    m('p.red#red1', 'Red?'),
+
+    m(Shadow, Slot => [
+      m('style', `
+        p {
+          color: green;
+        }
+      `),
+      
+      m('p.red#red2', 'Red?!'),
+
+      m(Slot,
+        m('p.red#red3', 'Red :)')
+      ),
+    ]),
+  ],
 })
 ```
 
