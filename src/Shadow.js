@@ -1,73 +1,72 @@
-import {viewOf} from './_utils.js'
+import { viewOf } from './_utils.js'
 
-export default function Shadow(){
+let count = 0
+
+export default function Shadow(vnode) {
+  let shadow = ++count
   let slots
   let contents
-  
+
   return {
-    view    : vnode => {
-      slots    = []
-      contents = viewOf(vnode)(Slot)
-      
-      const {selector, ...attrs} = vnode.attrs
-      
-      return m(selector || '[style=display:contents]', attrs)
+    view: _ => (
+      vnode = _,
+      slots = [],
+      contents = viewOf(vnode)(Slot),
+
+      m('[style=display:contents]', vnode.attrs)
+    ),
+
+    oncreate() {
+      vnode.dom.attachShadow({ mode: 'open' })
+
+      render()
     },
 
-    onremove: vnode => {
+    onupdate() {
+      render()
+    },
+
+    onremove() {
       m.render(vnode.dom.shadowRoot, null)
     },
-
-    oncreate: vnode => {
-      vnode.dom.attachShadow({mode: 'open'})
-      
-      render(vnode)
-    },
-
-    onupdate: render,
   }
-  
-  function render(vnode){
+
+  function Slot() {
+    return {
+      view: vnode => (
+        slots.push(vnode),
+
+        m('slot', { name: `shadow-${shadow}-slot-${slots.length}` })
+      ),
+    }
+  }
+
+  function render() {
     m.render(
-      vnode.dom.shadowRoot, 
-      
-      m.fragment({
-        oncreate(){
-          renderSlots()
-        },
-      }, contents), 
-      
+      vnode.dom.shadowRoot,
+
+      contents,
+
       m.redraw,
     )
-    
-    function renderSlots(){
-      m.render(
-        vnode.dom,
 
-        slots.map(({attrs: {name, selector, ...attrs}, children}, index) => 
-          m(
-            selector || '[style=display:contents]', 
+    m.render(
+      vnode.dom,
 
-            Object.assign(attrs, {
-              slot: name || 'slot-' + (index + 1)
-            }),
+      slots.map(({ attrs, children }, index) =>
+        m(
+          'section[style=display:contents]',
 
-            children,
-          ),
+          {
+            ...attrs,
+            slot: `shadow-${shadow}-slot-${index + 1}`
+          },
+
+          children,
         ),
+      ),
 
-        m.redraw,
-      )
-    }
-  }
-  
-  function Slot(){
-    return {
-      view(vnode){
-        slots.push(vnode)
-        
-        return m('slot', {name: vnode.attrs.name || 'slot-' + slots.length})
-      }
-    }
+      m.redraw,
+    )
   }
 }
