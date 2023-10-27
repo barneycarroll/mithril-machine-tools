@@ -140,7 +140,7 @@ m.mount(document.body, function Search(){
           ({value, pending, resolved}) => [
             pending && m(LoadingIndicator),
 
-            resolved && mI(Results, {value}),
+            resolved && m(Results, {value}),
           ],
         ),
     ],
