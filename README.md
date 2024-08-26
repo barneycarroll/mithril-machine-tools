@@ -161,7 +161,7 @@ m.mount(document.body, {
       m(Nav),
 
       m(Header,
-        m(Live, m('h1', title)),
+        m(Live, () => m('h1', title)),
       ),
 
       m(PageLayout,
@@ -170,6 +170,8 @@ m.mount(document.body, {
     ],
 })
 ```
+
+`Live` components must be provided view function inputs in order to re-interpolate scoped expressions.
 
 ### Liminal
 
